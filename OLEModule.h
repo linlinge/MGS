@@ -83,7 +83,7 @@ double OLEModule::GetMinorEval(int K,string str)
 {
 	
 	if("Common"==str){
-		if(rst_meval.Size()==0)
+		if(rst_meval.GetSize()==0)
 			rst_meval.Resize(cloud_->points.size());
 	
 		#pragma omp parallel for
@@ -94,14 +94,14 @@ double OLEModule::GetMinorEval(int K,string str)
 		}
 		rst_meval.Write("Result/meval.csv");
 		meval_=rst_meval.GetMean();
-		double meval_Q1=rst_meval.Quantile(0.25);
-		meval_Q3_=rst_meval.Quantile(0.75);
+		double meval_Q1=rst_meval.GetQuantile(0.25);
+		meval_Q3_=rst_meval.GetQuantile(0.75);
 		meval_IQR_=meval_Q3_-meval_Q1;
 		og_=meval_/(dmean_*dmean_);
 		return meval_;
 	}
 	else if("Fast"==str){
-		if(rst_meval.Size()!=0){
+		if(rst_meval.GetSize()!=0){
 			rst_meval.Clear();
 		}
 		rst_meval.Resize(n_);
@@ -126,7 +126,7 @@ double OLEModule::GetDB2(int K, string str)
 {
 	
 	if("Common"==str){
-		if(rst_db2.Size()==0)
+		if(rst_db2.GetSize()==0)
 			rst_db2.Resize(cloud_->points.size());
 		
 		#pragma omp parallel for
@@ -138,14 +138,14 @@ double OLEModule::GetDB2(int K, string str)
 		meval_=rst_db2.GetMean();
 
 
-		double db2_Q1=rst_db2.Quantile(0.25);
-		db2_Q3_=rst_db2.Quantile(0.75);
+		double db2_Q1=rst_db2.GetQuantile(0.25);
+		db2_Q3_=rst_db2.GetQuantile(0.75);
 		db2_IQR_=db2_Q3_-db2_Q1;
 
 		return meval_;
 	}
 	else if("Fast"==str){
-		if(rst_db2.Size()!=0)
+		if(rst_db2.GetSize()!=0)
 			rst_db2.Clear();
 		rst_db2.Resize(n_);
 

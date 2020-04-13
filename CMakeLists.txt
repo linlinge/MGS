@@ -39,12 +39,6 @@ include_directories(glib .)
 ADD_SUBDIRECTORY(glib)
 aux_source_directory(. MAIN_SRC)
 add_executable (COR main.cpp 
-                    DataMining.cpp 
-                    ImprovedLoop.cpp 
-                    EdgeDetection.cpp 
-                    AngleBasedOutlier.cpp 
-                    PointSetFeatures.cpp 
-                    RunPython.cpp 
                     OLEModule.h
                     FEModule.h)
 
