@@ -40,7 +40,11 @@ ADD_SUBDIRECTORY(glib)
 aux_source_directory(. MAIN_SRC)
 add_executable (COR main.cpp 
                     OLEModule.h
-                    FEModule.h)
+                    OLEModule.cpp
+                    FEModule.h
+                    FEModule.cpp
+                    HybridModule.h
+                    HybridModule.cpp)
 
 
 ###########################################  link library ###############################################

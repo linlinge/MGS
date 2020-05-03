@@ -164,7 +164,48 @@ void GetEval(pcl::PointCloud<PointType>::Ptr cloud,int k,
 	sort(eval.begin(),eval.end());
 }
 
-double GetMEval(pcl::PointCloud<PointType>::Ptr cloud,int k,
+/*
+	Not Successed
+*/
+double GetMEvalKDistance(pcl::PointCloud<PointType>::Ptr cloud,int k,
+				pcl::search::KdTree<PointType>::Ptr kdtree,int index)
+{
+	vector<int> KIdx,RIdx;
+	vector<float> KDist,RDist;
+
+	kdtree->nearestKSearch(index, k, KIdx, KDist);
+	cout<<k-1<<endl;
+	cout<<KDist[k-1]<<endl;
+	kdtree->radiusSearch(cloud->points[index],KDist[k-1],RIdx,RDist);
+	pcl::PointCloud<PointType>::Ptr ctmp(new pcl::PointCloud<PointType>);     
+	for(int j=0;j<RIdx.size();j++)
+		ctmp->points.push_back(cloud->points[RIdx[j]]);
+
+	// Eval
+	vector<double> eval;
+	eval.resize(3);
+	Eigen::Vector4f centroid;
+	Eigen::Matrix3f covariance;
+	pcl::compute3DCentroid(*ctmp, centroid);
+	pcl::computeCovarianceMatrixNormalized(*ctmp, centroid, covariance);
+	double a=covariance(0,0); double b=covariance(0,1); double c=covariance(0,2);
+	double d=covariance(1,1); double e=covariance(1,2); double f=covariance(2,2);
+	double e2=e*e; double b2=b*b;double c2=c*c;
+	double B=-(d+f+a); double C=d*f+a*d+a*f-e2-b2-c2;
+	double D=-a*d*f+a*e2+b2*f-2*b*e*c+c2*d;
+	double p=(3*C-B*B)/3.0; double q=(27.0*D-9*B*C+2*B*B*B)/27.0;
+	double r=sqrt(-p*p*p/27.0);
+	double theta=1.0/3*acos(-q/(2.0*r));
+	double tmp1=2*pow(r,1/3.0); double tmp2=B/3.0;
+	eval[0]=tmp1*cos(theta)-tmp2;
+	eval[1]=tmp1*cos(theta+2.0/3.0*M_PI)-tmp2;
+	eval[2]=tmp1*cos(theta+4.0/3.0*M_PI)-tmp2;
+	sort(eval.begin(),eval.end());
+
+	return eval[0];
+}
+
+double GetMEvalKNeighours(pcl::PointCloud<PointType>::Ptr cloud,int k,
 				pcl::search::KdTree<PointType>::Ptr kdtree,int index)
 {
 	vector<int> idx(k);
@@ -198,7 +239,7 @@ double GetMEval(pcl::PointCloud<PointType>::Ptr cloud,int k,
 	return eval[0];
 }
 
-double GetMEval(pcl::PointCloud<PointType>::Ptr cloud,double radius,
+double GetMEvalRadius(pcl::PointCloud<PointType>::Ptr cloud,double radius,
 				pcl::search::KdTree<PointType>::Ptr kdtree,int index)
 {
 	vector<int> idx;
@@ -231,6 +272,15 @@ double GetMEval(pcl::PointCloud<PointType>::Ptr cloud,double radius,
 
 	return eval[0];
 }
+
+double GetCounterAmongRadius(pcl::PointCloud<PointType>::Ptr cloud,double radius,
+				pcl::search::KdTree<PointType>::Ptr kdtree,int index)
+{
+	vector<int> idx;
+	vector<float> dist;
+	kdtree->radiusSearch(index, radius, idx, dist);
+	return idx.size()/pow(radius,3);
+}				
 
 double GetMEval2(pcl::PointCloud<PointType>::Ptr cloud,int k,
 				 pcl::search::KdTree<PointType>::Ptr kdtree,int index)
@@ -303,46 +353,4 @@ int GetIndex(pcl::search::KdTree<PointType>::Ptr kdtree,PointType ptmp)
 	vector<float> dist(1);
 	kdtree->nearestKSearch(ptmp,1,idx,dist);
 	return idx[0];
-}
-
-double global_rg_thresh=2.0;
-bool customRegionGrowing (const PointType& point_a, const PointType& point_b, float squared_distance)
-{
-	if (squared_distance < global_rg_thresh)
-    	return true;
-  	else
-    	return false;
-}
-
-RegionGrowth::RegionGrowth(pcl::PointCloud<PointType>::Ptr cloud, 
-						   pcl::PointCloud<PointType>::Ptr rg_cloud,
-						   pcl::search::KdTree<PointType>::Ptr kdtree,
-						   double thresh,
-						   double small_clusters_ratio)
-{
-	clusters=pcl::IndicesClustersPtr(new pcl::IndicesClusters);
-	small_clusters=pcl::IndicesClustersPtr(new pcl::IndicesClusters);
-	large_clusters=pcl::IndicesClustersPtr(new pcl::IndicesClusters);
-	global_rg_thresh=10*thresh;
-	int cthresh=rg_cloud->points.size ()*small_clusters_ratio;
-	cout<<rg_cloud->points.size()<<endl;
-	cout<<cthresh<<endl;
-
-	pcl::ConditionalEuclideanClustering<PointType> cec (true);
-	cec.setInputCloud (rg_cloud);
-	cec.setConditionFunction (&customRegionGrowing);
-	cec.setClusterTolerance (5.0);
-	cec.setMinClusterSize (cthresh);
-	cec.setMaxClusterSize (rg_cloud->points.size () / 5);
-	cec.segment (*clusters);
-	cec.getRemovedClusters (small_clusters, large_clusters);
-
-	for (int i = 0; i < small_clusters->size (); ++i){
-		for (int j = 0; j < (*small_clusters)[i].indices.size (); ++j){
-			int itmp=(*small_clusters)[i].indices[j];
-			PointType ptmp=rg_cloud->points[itmp];
-			int realIdx=GetIndex(kdtree,ptmp);
-			oidx_.push_back(realIdx);
-		}
-  	}
 }

@@ -10,18 +10,13 @@ double VectorMean(vector<double>& dat)
 
 double VectorMinimum(vector<double>& dat)
 {
-    double rst=INT_MAX;
-    for(int i=0;i<dat.size();i++)
-        rst=rst<dat[i] ? rst:dat[i];
-    return rst;
+    auto vmin=std::min_element(dat.begin(),dat.end());
+    return *vmin;
 }
 double VectorMaximum(vector<double>& dat)
 {
-    double rst=-INT_MAX;
-    for(int i=0;i<dat.size();i++){
-        rst=rst>dat[i] ? rst:dat[i];
-    }
-    return rst;
+    auto vmax=std::max_element(dat.begin(),dat.end());
+    return *vmax;
 }
 double VectorStd(vector<double>& dat)
 {

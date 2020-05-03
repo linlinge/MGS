@@ -40,11 +40,11 @@ int GetIndex(pcl::search::KdTree<PointType>::Ptr kdtree,PointType ptmp);
 /* 
         Eigenvector and Eigenvalue 
 */
-double GetMEval(pcl::PointCloud<PointType>::Ptr cloud,int k,
+double GetMEvalKDistance(pcl::PointCloud<PointType>::Ptr cloud,int k,
 		pcl::search::KdTree<PointType>::Ptr kdtree,int index);
-double GetMEval(pcl::PointCloud<PointType>::Ptr cloud,double radius,
-		pcl::search::KdTree<PointType>::Ptr kdtree,int index);
-double GetMEval2(pcl::PointCloud<PointType>::Ptr cloud,int k,
+double GetMEvalRadius(pcl::PointCloud<PointType>::Ptr cloud,double radius,
+		      pcl::search::KdTree<PointType>::Ptr kdtree,int index);
+double GetMEvalNeighours(pcl::PointCloud<PointType>::Ptr cloud,int k,
 		pcl::search::KdTree<PointType>::Ptr kdtree,int index);
 void GetEvalAndEvec(pcl::PointCloud<PointType>::Ptr cloud,int k,
 		pcl::search::KdTree<PointType>::Ptr kdtree,int index,
@@ -53,20 +53,5 @@ void GetEvalAndEvec(pcl::PointCloud<PointType>::Ptr ctmp,vector<double>& eval,ve
 void GetEval(pcl::PointCloud<PointType>::Ptr cloud,int k,
 	     pcl::search::KdTree<PointType>::Ptr kdtree,int index);
 
-/*
-        Region Growth
-*/
-bool customRegionGrowing (const PointType& point_a, const PointType& point_b, float squared_distance);
-class RegionGrowth
-{
-    public:
-        // pcl::PointCloud<PointType>::Ptr cloud_;
-        // pcl::search::KdTree<PointType>::Ptr kdtree_;
-        pcl::IndicesClustersPtr clusters,small_clusters,large_clusters;
-        vector<int> oidx_;
-        RegionGrowth(pcl::PointCloud<PointType>::Ptr cloud, 
-                     pcl::PointCloud<PointType>::Ptr rg_cloud, 
-                     pcl::search::KdTree<PointType>::Ptr kdtree,
-                     double eclidean_thresh,
-                     double small_cluster_ratio);
-};
+double GetCounterAmongRadius(pcl::PointCloud<PointType>::Ptr cloud,double radius,
+			     pcl::search::KdTree<PointType>::Ptr kdtree,int index);

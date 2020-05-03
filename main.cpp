@@ -15,7 +15,8 @@
 #include "FEModule.h"
 #include<time.h>
 #include "stdlib.h"
-#include "time.h"    
+#include "time.h"   
+#include "HybridModule.h" 
 int main(int argc,char** argv)
 {
 	pcl::PointCloud<PointType>::Ptr cloud(new pcl::PointCloud<PointType>);	
@@ -27,13 +28,29 @@ int main(int argc,char** argv)
 	kdtree->setInputCloud(cloud);
 
 	OLEModule ole(cloud,kdtree);
-	ole.GetMinorEval();
-	cout<<"og_: "<<ole.og_<<endl;
+	// ole.GetMinorEval();
+	FEModule(cloud,kdtree,&ole);
 
-	FEModule fem(cloud,kdtree);
-	// fem.ApplyHierarchical(ole,100,0.95,0.002);
-	// fem.ApplySlope(ole,200,0.8);
-	fem.ApplyMEval(ole);
-	fem.DemonstrateResult("Result/rst_color.ply");
+	// ApplySlope(100,15,default_layer);
+	// ApplyRegionGrowth(1,0.001,0.3);
+	// ApplyMEval(40,10.0,0);
+	// D();
+	// ApplySlope(300,6,0);
+	// H();
+	// ApplyRegionGrowth(1,0.001,0.3);
+	// D();
+
+	ApplyMEval(10,10.0,default_layer);
+	ApplyMajorityVote(1,8000);
+	D();
+	ApplySlope(400,3,0);
+	H();
+	ApplyRegionGrowth(1,0.001,0.3);
+	D();
+
+	// H(ApplyMEval,40,10.0,default_layer,ApplySlope,200,10,0);
+	// H(ApplyMEval,10,3.0,default_layer,ApplySlope,800,3.0,0);
+	// H(ApplyMEval,10,3.0,default_layer,ApplySlope,800,3.0,0);
+	DemonstrateResult("Result/rst_color.ply");
 	return 0;
 }

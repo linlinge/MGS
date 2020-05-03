@@ -23,7 +23,7 @@ V3 get_color(float min,float max,float confidence)
                 color_temp.g=255;
                 color_temp.b=0;
         }
-        else
+        else    // red
         {
                 color_temp.r=255;
                 color_temp.g=255-(c-3*step)/step*255;

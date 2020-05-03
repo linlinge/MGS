@@ -25,6 +25,7 @@ class Rrd1
 			item1_=item1;
 		}
         double GetItem(int index=1){ return item1_;};
+        void SetItem(double val, int index=1){ item1_=val;}       
 };
 class Rrd2
 {
@@ -43,6 +44,12 @@ class Rrd2
                 return item1_;
             else
                 return item2_;
+        }
+        void SetItem(double val,int item_id=1){
+            if(1==item_id)
+                item1_=val;
+            else if(2==item_id)
+                item2_=val;
         }
 };
 
@@ -65,32 +72,31 @@ class Table
         void Clear();
 		void Resize(int n);
 		void push_back(Rrd e);
-		void Ascending(int item_index=1);
-		void Descending(int item_index=1);
-		void SortBackup(int item_index=1);		
-		void Print();
+		void Ascending(int ItemID=1);
+		void Descending(int ItemID=1);
+		void SortBackup(int ItemID=1);		
+		void Print(int ItemID=1);
 		double PDF(double t,double n,double h);
 		double ReversePDF(double P);
 		void Find(vector<int>& out,string str=">",double thresh1=0, double thresh2=0);
-		void Standardize_Zscore(int item_index=1);
-		void Normalize_Tanh(double scale=1.0, int item_index=1);		
-		void Normalize_Min_Max(int item_index=1);
+		void Standardize_Zscore(int ItemID=1);
+		void Normalize_Tanh(double scale=1.0, int ItemID=1);		
+		void Normalize_Min_Max(int ItemID=1);
 		void Write(string path);
-		void MultiplyQ6(int m1,int m2,double scale);
-        void Multiply(double);
-		void Overturn();
+        void Multiply(double val, int ItemID=1);
+		void Overturn(int ItemID=1);
 		void LocalFilter(string str,pcl::PointCloud<PointType>::Ptr cloud,int K);
 		void nPLOF(pcl::PointCloud<PointType>::Ptr cloud,int K);
 		void SetActiveIndex(string erea_color, string status);
 		// Get 
-        void GetNormalDistributionError();
-        void GetCorrespondingColor(int item_index=1);
+        void GetNormalDistributionError(int ItemID=1);
+        void GetCorrespondingColor(int ItemID=1);
 		void GetHistogram(int k=30);
-        void GetMeanAndVariance(int item_index=1);
-		void GetMinimumAndMaximum(int item_index=1);
-        double GetMaximum();
-        double GetMinimum(int item_index=1);
-        double GetMean(int item_index=1);
+        void GetMeanAndVariance(int ItemID=1);
+		void GetMinimumAndMaximum(int ItemID=1);
+        double GetMaximum(int ItemID=1);
+        double GetMinimum(int ItemID=1);
+        double GetMean(int ItemID=1);
         double GetQuantile(double p);
 		double GetMedian();
 		double GetStd();		
@@ -123,106 +129,107 @@ int Table<Rrd>::GetSize()
     return records_.size();
 }
 template <class Rrd>
-void Table<Rrd>::GetMeanAndVariance(int item_index)
+void Table<Rrd>::GetMeanAndVariance(int ItemID)
 {    
-    if(1==item_index){
-        double sum=0;
-        // calculate average
-        for(int i=0;i<records_.size();i++){
-            sum+=records_[i].item1_;
-        }
-        mean_=sum/records_.size();
-
-        // calculate variance
-        sum=0;
-        for(int i=0;i<records_.size();i++){
-            sum+=pow(records_[i].item1_-mean_,2);
-        }
-        sigma_=sqrt(sum/(records_.size()-1));
+    double sum=0;
+    // calculate average
+    for(int i=0;i<records_.size();i++){
+        sum+=records_[i].GetItem(ItemID);
     }
+    mean_=sum/records_.size();
+
+    // calculate variance
+    sum=0;
+    for(int i=0;i<records_.size();i++){
+        sum+=pow(records_[i].GetItem(ItemID)-mean_,2);
+    }
+    sigma_=sqrt(sum/(records_.size()-1));
+
 }
 
 template <class Rrd>
-void Table<Rrd>::GetMinimumAndMaximum(int item_index)
+void Table<Rrd>::GetMinimumAndMaximum(int ItemID)
 {
-    if(1==item_index){
-        min_=INT_MAX;
-        max_=-INT_MAX;
-        // #pragma omp parallel for
-        for(int i=0;i<records_.size();i++){
-            min_=min_<records_[i].item1_ ? min_:records_[i].item1_;
-            max_=max_>records_[i].item1_ ? max_:records_[i].item1_;
-        }
+    min_=INT_MAX;
+    max_=-INT_MAX;    
+    for(int i=0;i<records_.size();i++){
+        double item_tmp=records_[i].GetItem(ItemID);
+        if(min_>item_tmp)
+            min_=item_tmp;
+        if(max_<item_tmp)
+            max_=item_tmp;
     }    
 }
 
 template<class Rrd>
-double Table<Rrd>::GetMinimum(int item_index)
+double Table<Rrd>::GetMinimum(int ItemID)
 {
     min_=INT_MAX;    
-    // #pragma omp parallel for
     for(int i=0;i<records_.size();i++){
-        if(min_>records_[i].GetItem(item_index))
-            min_=records_[i].GetItem(item_index);
+        double item_tmp=records_[i].GetItem(ItemID);
+        if(min_>item_tmp)
+            min_=item_tmp;
     }
     return min_;
 }
 
 template<class Rrd>
-double Table<Rrd>::GetMean(int item_index)
+double Table<Rrd>::GetMean(int ItemID)
 {
     double sum=0;
     // calculate average
     for(int i=0;i<records_.size();i++){
-        sum+=records_[i].item1_;
+        sum+=records_[i].GetItem(ItemID);
     }
     mean_=sum/records_.size();
     return mean_;
 }
 
 template <class Rrd>
-void Table<Rrd>::Standardize_Zscore(int item_index)
+void Table<Rrd>::Standardize_Zscore(int ItemID)
 {
-    if(1==item_index){
-        GetMeanAndVariance();
-        #pragma omp parallel for
-        for(int i=0;i<records_.size();i++){
-            records_[i].item1_=(records_[i].item1_-mean_)/sigma_;
-        }        
-    }
+    GetMeanAndVariance();
+    #pragma omp parallel for
+    for(int i=0;i<records_.size();i++){
+        double new_dat_tmp=(records_[i].GetItem(ItemID)-mean_)/sigma_;
+        records_[i].SetItem(new_dat_tmp,ItemID);
+    }    
 }
 template <class Rrd>
-void Table<Rrd>::Normalize_Min_Max(int item_index)
-{
-    if(1==item_index){        
-        GetMinimumAndMaximum();
-        #pragma omp parallel for
-        for(int i=0;i<records_.size();i++)
-            records_[i].item1_=(records_[i].item1_-min_)/(max_-min_);
-    }
+void Table<Rrd>::Normalize_Min_Max(int ItemID)
+{        
+    GetMinimumAndMaximum();
+    #pragma omp parallel for
+    for(int i=0;i<records_.size();i++){
+        double new_dat_tmp=(records_[i].GetItem(ItemID)-min_)/(max_-min_);
+        records_[i].SetItem(new_dat_tmp,ItemID);
+    }        
 }
 template <class Rrd>
-void Table<Rrd>::Normalize_Tanh(double scale,int item_index)
-{
-    if(1==item_index){        
-        GetMeanAndVariance();
-        #pragma omp parallel for
-        for(int i=0;i<records_.size();i++){
-            records_[i].item1_=tanh(scale*records_[i].item1_);
-        } 
-    }
+void Table<Rrd>::Normalize_Tanh(double scale,int ItemID)
+{     
+    GetMeanAndVariance();
+    #pragma omp parallel for
+    for(int i=0;i<records_.size();i++){
+        double new_dat_tmp=tanh(scale*records_[i].item1_);
+        records_[i].SetItem(new_dat_tmp,ItemID);
+    } 
 }
 template <class Rrd>
-void Table<Rrd>::Ascending(int item_index)
+void Table<Rrd>::Ascending(int ItemID)
 {
-    if(1==item_index)
-        sort(records_.begin(),records_.end(),[](Rrd& e1,Rrd& e2){ return e1.item1_<e2.item1_;});
+    if(1==ItemID)
+        sort(records_.begin(),records_.end(),[](Rrd& e1,Rrd& e2){ return e1.GetItem()<e2.GetItem();});
+    else if(2==ItemID)
+        sort(records_.begin(),records_.end(),[](Rrd& e1,Rrd& e2){ return e1.GetItem(2)<e2.GetItem(2);});
 }
 template <class Rrd>
-void Table<Rrd>::Descending(int item_index)
+void Table<Rrd>::Descending(int ItemID)
 {
-    if(1==item_index)
-        sort(records_.begin(),records_.end(),[](Rrd& e1, Rrd& e2){ return e1.item1_> e2.item1_;});
+    if(1==ItemID)
+        sort(records_.begin(),records_.end(),[](Rrd& e1,Rrd& e2){ return e1.GetItem()>e2.GetItem();});
+    else if(2==ItemID)
+        sort(records_.begin(),records_.end(),[](Rrd& e1,Rrd& e2){ return e1.GetItem(2)>e2.GetItem(2);});
 }
 template <class Rrd>
 void Table<Rrd>::Write(string path)
@@ -233,42 +240,34 @@ void Table<Rrd>::Write(string path)
     }    
     fout.close();
 }
+
 template <class Rrd>
-void Table<Rrd>::MultiplyQ6(int m1,int m2,double scale)
-{
-    GetMinimumAndMaximum();
-    double step=(max_-min_)/6.0;
-    double lower_bound=(m1-1)*step+min_;
-    double upper_bound=m2*step+min_;
-    #pragma omp parallel for
-    for(int i=0;i<records_.size();i++){
-        if(records_[i].item1_>= lower_bound && records_[i].item1_<= upper_bound){
-            records_[i].item1_=records_[i].item1_*scale;
-        }
-    }
-}
-template <class Rrd>
-void Table<Rrd>::Multiply(double val)
-{
-    #pragma omp parallel for
-    for(int i=0;i<records_.size();i++)
-        records_[i].item1_*=val;
-}
-template <class Rrd>
-void Table<Rrd>::Overturn()
-{
-    GetMinimumAndMaximum();
-    // #pragma omp parallel for
-    for(int i=0;i<records_.size();i++){        
-        records_[i].item1_=max_-records_[i].item1_;        
-    }
-}
-template <class Rrd>
-void Table<Rrd>::GetNormalDistributionError()
+void Table<Rrd>::Multiply(double val, int ItemID)
 {
     #pragma omp parallel for
     for(int i=0;i<records_.size();i++){
-        records_[i].item1_=Erf(records_[i].item1_);
+        double new_dat_tmp=records_[i].GetItem(ItemID)*val;
+        records_[i].SetItem(new_dat_tmp);
+    }
+        
+}
+template <class Rrd>
+void Table<Rrd>::Overturn(int ItemID)
+{
+    GetMaximum();
+    #pragma omp parallel for
+    for(int i=0;i<records_.size();i++){  
+        double new_dat_tmp=max_-records_[i].GetItem(ItemID);
+        records_[i].SetItem(new_dat_tmp);      
+    }
+}
+template <class Rrd>
+void Table<Rrd>::GetNormalDistributionError(int ItemID)
+{
+    #pragma omp parallel for
+    for(int i=0;i<records_.size();i++){
+        double new_dat_tmp=Erf(records_[i].GetItem(ItemID));
+        records_[i].SetItem(new_dat_tmp);     
     }
 }
 template <class Rrd>
@@ -369,25 +368,23 @@ void Table<Rrd>::push_back(Rrd e)
     records_.push_back(e);
 }
 template <class Rrd>
-void Table<Rrd>::Print()
+void Table<Rrd>::Print(int ItemID)
 {
     for(int i=0;i<records_.size();i++){
-        cout<<records_[i].item1_<<" ";
+        cout<<records_[i].GetItem(ItemID)<<" ";
     }
     cout<<endl;
 }
 template <class Rrd>
-void Table<Rrd>::GetCorrespondingColor(int item_index)
+void Table<Rrd>::GetCorrespondingColor(int ItemID)
 {
-    if(item_index==1){
-        color_.resize(records_.size());
-        GetMinimumAndMaximum();
-        for(int i=0;i<records_.size();i++){
-            V3 ctmp=get_color(min_,max_,records_[i].item1_);
-            color_[i].r=ctmp.r;
-            color_[i].g=ctmp.g;
-            color_[i].b=ctmp.b;
-        }
+    color_.resize(records_.size());
+    GetMinimumAndMaximum();
+    for(int i=0;i<records_.size();i++){
+        V3 ctmp=get_color(min_,max_,records_[i].GetItem(ItemID));
+        color_[i].r=ctmp.r;
+        color_[i].g=ctmp.g;
+        color_[i].b=ctmp.b;
     }
 }
 template <class Rrd>
@@ -501,12 +498,14 @@ void Table<Rrd>::Find(vector<int>& out, string str,double thresh1, double thresh
 }
 
 template <class Rrd>
-double Table<Rrd>::GetMaximum()
+double Table<Rrd>::GetMaximum(int ItemID)
 {
-    double rst=-INT_MAX;
-    for(int i=0;i<records_.size();i++)
-        rst=rst>records_[i].item1_ ? rst:records_[i].item1_;
-    return rst;
+    max_=-INT_MAX;
+    for(int i=0;i<records_.size();i++){
+        if(max_<records_[i].GetItem(ItemID))
+            max_=records_[i].GetItem(ItemID);
+    }        
+    return max_;
 }
 
 template <class Rrd>
