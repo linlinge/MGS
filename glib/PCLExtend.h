@@ -44,7 +44,7 @@ double GetMEvalKDistance(pcl::PointCloud<PointType>::Ptr cloud,int k,
 		pcl::search::KdTree<PointType>::Ptr kdtree,int index);
 double GetMEvalRadius(pcl::PointCloud<PointType>::Ptr cloud,double radius,
 		      pcl::search::KdTree<PointType>::Ptr kdtree,int index);
-double GetMEvalNeighours(pcl::PointCloud<PointType>::Ptr cloud,int k,
+double GetMEvalKNeighours(pcl::PointCloud<PointType>::Ptr cloud,int k,
 		pcl::search::KdTree<PointType>::Ptr kdtree,int index);
 void GetEvalAndEvec(pcl::PointCloud<PointType>::Ptr cloud,int k,
 		pcl::search::KdTree<PointType>::Ptr kdtree,int index,

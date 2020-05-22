@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/COR",
-            "args": ["/home/llg/dataset/3Dlib/cat_colmap.ply"],
+            "args": ["/home/llg/dataset/3Dlib/Ignatius_COLMAP_part1.ply"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

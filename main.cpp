@@ -12,11 +12,12 @@
 #include "VectorExtend.h"
 #include "SignalProcessing.h"
 #include "OLEModule.h"
-#include "FEModule.h"
 #include<time.h>
 #include "stdlib.h"
 #include "time.h"   
-#include "HybridModule.h" 
+#include "HybridMethods.h" 
+#include "Statistics.h"
+
 int main(int argc,char** argv)
 {
 	pcl::PointCloud<PointType>::Ptr cloud(new pcl::PointCloud<PointType>);	
@@ -26,31 +27,50 @@ int main(int argc,char** argv)
 	}
 	pcl::search::KdTree<PointType>::Ptr kdtree(new pcl::search::KdTree<PointType>());
 	kdtree->setInputCloud(cloud);
-
 	OLEModule ole(cloud,kdtree);
-	// ole.GetMinorEval();
-	FEModule(cloud,kdtree,&ole);
 
-	// ApplySlope(100,15,default_layer);
-	// ApplyRegionGrowth(1,0.001,0.3);
-	// ApplyMEval(40,10.0,0);
-	// D();
-	// ApplySlope(300,6,0);
-	// H();
-	// ApplyRegionGrowth(1,0.001,0.3);
-	// D();
-
-	ApplyMEval(10,10.0,default_layer);
-	ApplyMajorityVote(1,8000);
-	D();
-	ApplySlope(400,3,0);
-	H();
-	ApplyRegionGrowth(1,0.001,0.3);
-	D();
-
-	// H(ApplyMEval,40,10.0,default_layer,ApplySlope,200,10,0);
-	// H(ApplyMEval,10,3.0,default_layer,ApplySlope,800,3.0,0);
-	// H(ApplyMEval,10,3.0,default_layer,ApplySlope,800,3.0,0);
-	DemonstrateResult("Result/rst_color.ply");
+	/* Hybrid Methods Generation */
+	string str="M1_2";
+	if("M1_1"==str){
+		/* Prox -> NID */
+		HybridMethods hrd01(cloud,kdtree,&ole);
+		hrd01.FM_Prox(150,15);
+		hrd01.FM_NID(100,0.8,REGULAR_DOMAIN);
+		hrd01.D(IRREGULAR_DOMAIN);
+		hrd01.DemonstrateResult("Result/M1_1");
+	}
+	else if("M1_2"==str){
+		HybridMethods hrd01(cloud,kdtree,&ole);
+		hrd01.FM_Prox(100,5);
+		hrd01.FM_MEval(80,2,IRREGULAR_DOMAIN);
+		hrd01.D(REGULAR_DOMAIN);
+		hrd01.DemonstrateResult("Result/M1_2");
+	}
+	else if("M1_3"==str){
+		HybridMethods hrd01(cloud,kdtree,&ole);
+		hrd01.FM_NID(100,0.8);
+		
+		hrd01.DemonstrateResult("Result/M1_2");
+	}
+	else if("M2_1"==str){
+		HybridMethods hrd01(cloud,kdtree,&ole);
+		hrd01.FM_Prox(100,10);
+		hrd01.FM_RegionGrowth(5.0,80.0,150.0,IRREGULAR_DOMAIN);
+		hrd01.D(IRREGULAR_DOMAIN);
+		hrd01.FM_NID(100,0.95,REGULAR_DOMAIN);
+		hrd01.D(IRREGULAR_DOMAIN);
+		hrd01.DemonstrateResult("Result/M2_1");
+	}
+	else if("M3_1"==str){
+		HybridMethods hrd01(cloud,kdtree,&ole); 
+		hrd01.FM_Prox(300,5);
+		hrd01.FM_MEval(30,1.5,REGULAR_DOMAIN);
+		hrd01.J(IRREGULAR_DOMAIN);
+		hrd01.FM_MajorityVote(500,IRREGULAR_DOMAIN);
+		hrd01.D(REGULAR_DOMAIN);
+		hrd01.FM_Prox(300,5,REGULAR_DOMAIN);
+		hrd01.J(IRREGULAR_DOMAIN);
+		hrd01.DemonstrateResult("Result/M3_1");
+	}
 	return 0;
 }

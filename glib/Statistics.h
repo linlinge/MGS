@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <algorithm>
 
 #include<limits.h>
 using namespace std;
@@ -22,5 +23,4 @@ double GaussErrorFunction(double x);
 double LossFunc(double x);
 double GaussianKernel(double x);
 double Erf(double x);
-
-int IQRTest(vector<double> dat);
+double Quantile(vector<int>& dat,double ratio);

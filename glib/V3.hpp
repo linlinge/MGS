@@ -5,7 +5,7 @@
 #include <limits.h>
 #include <iostream>
 #include <pcl/point_types.h>
-#include <opencv2/opencv.hpp>
+// #include <opencv2/opencv.hpp>
 #define PI 3.1415926535897
 #define MAX2(a,b) (a>b? a:b)
 #define X_AXIS 0
@@ -34,35 +34,35 @@ public:
 		g = g1;
 		b = b1;
 	}
-	V3(cv::Mat dat)
-	{
-		int rows=dat.rows;
-		int cols=dat.cols;
-		if(rows==1 && dat.type()==CV_32F)
-		{
-			x=dat.at<float>(0,0);
-			y=dat.at<float>(0,1);
-			z=dat.at<float>(0,2);
-		}
-		else if(rows==1 && dat.type()==CV_64F)
-		{
-			x=dat.at<double>(0,0);
-			y=dat.at<double>(0,1);
-			z=dat.at<double>(0,2);
-		}
-		else if(cols==1 && dat.type()==CV_32F)
-		{
-			x=dat.at<float>(0,0);
-			y=dat.at<float>(1,0);
-			z=dat.at<float>(2,0);
-		}
-		else if(cols==1 && dat.type()==CV_64F)
-		{
-			x=dat.at<double>(0,0);
-			y=dat.at<double>(1,0);
-			z=dat.at<double>(2,0);
-		}		
-	}
+	// V3(cv::Mat dat)
+	// {
+	// 	int rows=dat.rows;
+	// 	int cols=dat.cols;
+	// 	if(rows==1 && dat.type()==CV_32F)
+	// 	{
+	// 		x=dat.at<float>(0,0);
+	// 		y=dat.at<float>(0,1);
+	// 		z=dat.at<float>(0,2);
+	// 	}
+	// 	else if(rows==1 && dat.type()==CV_64F)
+	// 	{
+	// 		x=dat.at<double>(0,0);
+	// 		y=dat.at<double>(0,1);
+	// 		z=dat.at<double>(0,2);
+	// 	}
+	// 	else if(cols==1 && dat.type()==CV_32F)
+	// 	{
+	// 		x=dat.at<float>(0,0);
+	// 		y=dat.at<float>(1,0);
+	// 		z=dat.at<float>(2,0);
+	// 	}
+	// 	else if(cols==1 && dat.type()==CV_64F)
+	// 	{
+	// 		x=dat.at<double>(0,0);
+	// 		y=dat.at<double>(1,0);
+	// 		z=dat.at<double>(2,0);
+	// 	}		
+	// }
 	
 	V3& operator=(const V3 & obj)
 	{
@@ -246,88 +246,88 @@ public:
 		return os;
 	}	
 	
-	float GetArcToPlane(int rotation_axis, int plane)
-	{
-		float arc;		
-		if(rotation_axis == X_AXIS && plane == XOZ)
-		{	
-			if(y==0)
-				arc=CV_PI/2.0f;
-			else if(z==0)
-				arc=0;
-			else if(y*z>0)
-			{
-				arc=atan(y/z);
-			}
-			else
-			{
-				arc=CV_PI+atan(y/z);
-			}
-		}
-		else if(rotation_axis == X_AXIS && plane == XOY)
-		{		
-			if(y==0)
-				arc=0;
-			else if(z==0)
-				arc=CV_PI/2.0f;
-			else 
-				arc=CV_PI/2.0f+atan(y/z);
-		}		
-		else if(rotation_axis == Y_AXIS && plane == XOY)
-		{		
-			if(x==0)
-				arc=CV_PI/2.0f;
-			else if(z==0)
-				arc=0;
-			else if(x*z>0)
-				arc=atan(z/x);
-			else 
-				arc=CV_PI+atan(z/x);
-		}
-		else if(rotation_axis == Y_AXIS && plane == YOZ)
-		{		
-			if(x==0)
-				arc=0;
-			else if(z==0)
-				arc=CV_PI/2.0f;
-			else
-				arc=CV_PI/2.0f+atan(z/x);
-		}
-		else if(rotation_axis == Z_AXIS && plane == YOZ)
-		{		
-			if(x==0)
-				arc=CV_PI/2.0f;
-			else if(y==0)
-				arc=0;
-			else if(x*y>0)
-				arc=atan(x/y);
-			else
-				arc=CV_PI+atan(x/y);
-		}
-		else if(rotation_axis == Z_AXIS && plane == XOZ)
-		{			
-			if(x==0)				
-				arc=CV_PI/2.0f;			
-			else if(y==0)				
-				arc=0;			
-			else
-				arc=CV_PI/2.0f+atan(x/y);			
-		}
+	// float GetArcToPlane(int rotation_axis, int plane)
+	// {
+	// 	float arc;		
+	// 	if(rotation_axis == X_AXIS && plane == XOZ)
+	// 	{	
+	// 		if(y==0)
+	// 			arc=CV_PI/2.0f;
+	// 		else if(z==0)
+	// 			arc=0;
+	// 		else if(y*z>0)
+	// 		{
+	// 			arc=atan(y/z);
+	// 		}
+	// 		else
+	// 		{
+	// 			arc=CV_PI+atan(y/z);
+	// 		}
+	// 	}
+	// 	else if(rotation_axis == X_AXIS && plane == XOY)
+	// 	{		
+	// 		if(y==0)
+	// 			arc=0;
+	// 		else if(z==0)
+	// 			arc=CV_PI/2.0f;
+	// 		else 
+	// 			arc=CV_PI/2.0f+atan(y/z);
+	// 	}		
+	// 	else if(rotation_axis == Y_AXIS && plane == XOY)
+	// 	{		
+	// 		if(x==0)
+	// 			arc=CV_PI/2.0f;
+	// 		else if(z==0)
+	// 			arc=0;
+	// 		else if(x*z>0)
+	// 			arc=atan(z/x);
+	// 		else 
+	// 			arc=CV_PI+atan(z/x);
+	// 	}
+	// 	else if(rotation_axis == Y_AXIS && plane == YOZ)
+	// 	{		
+	// 		if(x==0)
+	// 			arc=0;
+	// 		else if(z==0)
+	// 			arc=CV_PI/2.0f;
+	// 		else
+	// 			arc=CV_PI/2.0f+atan(z/x);
+	// 	}
+	// 	else if(rotation_axis == Z_AXIS && plane == YOZ)
+	// 	{		
+	// 		if(x==0)
+	// 			arc=CV_PI/2.0f;
+	// 		else if(y==0)
+	// 			arc=0;
+	// 		else if(x*y>0)
+	// 			arc=atan(x/y);
+	// 		else
+	// 			arc=CV_PI+atan(x/y);
+	// 	}
+	// 	else if(rotation_axis == Z_AXIS && plane == XOZ)
+	// 	{			
+	// 		if(x==0)				
+	// 			arc=CV_PI/2.0f;			
+	// 		else if(y==0)				
+	// 			arc=0;			
+	// 		else
+	// 			arc=CV_PI/2.0f+atan(x/y);			
+	// 	}
 		
-		return arc;
-	}
+	// 	return arc;
+	// }
 	
-	cv::Mat ToMat(int row_or_col)
-	{
-		if(row_or_col==0)
-		{
-			cv::Mat dat=(cv::Mat_<float>(1,3)<<x,y,z);
-			return dat;
-		}
-		else
-		{
-			cv::Mat dat=(cv::Mat_<float>(3,1)<<x,y,z);
-			return dat;
-		}
-	}	
+	// cv::Mat ToMat(int row_or_col)
+	// {
+	// 	if(row_or_col==0)
+	// 	{
+	// 		cv::Mat dat=(cv::Mat_<float>(1,3)<<x,y,z);
+	// 		return dat;
+	// 	}
+	// 	else
+	// 	{
+	// 		cv::Mat dat=(cv::Mat_<float>(3,1)<<x,y,z);
+	// 		return dat;
+	// 	}
+	// }	
 };
