@@ -68,7 +68,9 @@ class Table
         vector<int> aidx_; // active indices
 		vector<V3> color_;
 
-
+        /**/
+        Table(){}
+        /**/
         void Clear();
 		void Resize(int n);
 		void push_back(Rrd e);
@@ -279,7 +281,7 @@ void Table<Rrd>::LocalFilter(string str, pcl::PointCloud<PointType>::Ptr cloud,i
     kdtree->setInputCloud(cloud);
 
     if("average"==str){
-         // #pragma omp parallel for
+         #pragma omp parallel for
         for(int i=0;i<cloud->points.size();i++){
             vector<int> idx(K+1);
             vector<float> dist(K+1);        

@@ -64,8 +64,12 @@ void HybridMethods::FM_Prox(int K, double kIQR,int domain_xi_1)
                 rst0->points.push_back(cloud_->points[i]);
             }
         }
+        #if STORE
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+        cout<<"yes"<<endl;
+        #endif
+
         cid_++;
         cout<<"Prox 1 end!"<<endl;
     }
@@ -115,8 +119,10 @@ void HybridMethods::FM_Prox(int K, double kIQR,int domain_xi_1)
                 rst0->points.push_back(cloud_->points[scope[i]]);
             }
         }
+        #if STORE
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+        #endif
         cid_++;
         cout<<"Prox 2 end!"<<endl;
     }
@@ -134,8 +140,8 @@ void HybridMethods::FM_MEval(int K, double alpha,int domain_xi_1)
         rst_meval_.Resize(cloud_->points.size());
         #pragma omp parallel for
         for(int i=0;i<cloud_->points.size();i++){
-            double eval_tmp=GetMEvalRadius(cloud_,K*pOle_->dmean_,kdtree_,i);
-            // double eval_tmp=GetMEvalKNeighours(cloud_,K,kdtree_,i);
+            // double eval_tmp=GetMEvalRadius(cloud_,K*pOle_->dmean_,kdtree_,i);
+            double eval_tmp=GetMEvalKNeighours(cloud_,K,kdtree_,i);
             rst_meval_.records_[i].id_=i;
             rst_meval_.records_[i].item1_=eval_tmp;
         }
@@ -153,8 +159,10 @@ void HybridMethods::FM_MEval(int K, double alpha,int domain_xi_1)
                 rst0->points.push_back(cloud_->points[i]);
             }
         }
+        #if STORE
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+        #endif
         cid_++;
         cout<<"MEval 1 end!"<<endl;
     }
@@ -192,8 +200,10 @@ void HybridMethods::FM_MEval(int K, double alpha,int domain_xi_1)
                 rst0->points.push_back(cloud_->points[scope[i]]);
             }
         }
+        #if STORE
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+        #endif
         cid_++;
         cout<<"MEval 2 end!"<<endl;
     }
@@ -230,15 +240,17 @@ void HybridMethods::FM_NID(int K, double p, int domain_xi_1)
         for(int i=0;i<rst_nid_.GetSize();i++){
             double etmp=GaussErrorFunction(rst_nid_.records_[i].item1_);
             if(etmp>p){
-                status_[i]=1;                
+                status_[i]+=accumulator_;                
                 rst1->points.push_back(cloud_->points[i]);
             }
             else{
                 rst0->points.push_back(cloud_->points[i]);
             }
         }
+        #if STORE
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+        #endif
         cid_++;
         cout<<"NID 1 end!"<<endl;
     }
@@ -283,8 +295,10 @@ void HybridMethods::FM_NID(int K, double p, int domain_xi_1)
                 rst0->points.push_back(cloud_->points[scope[i]]);
             }            
         }
+        #if STORE
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+        #endif
         cid_++;
         cout<<"NID 2 end!"<<endl;
     }
@@ -325,8 +339,10 @@ void HybridMethods::FM_DB2(int K, double P,int domain_xi_1)
                 rst0->points.push_back(cloud_->points[i]);
             }
         }
+        #if STORE
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+        #endif
         cid_++;
         cout<<"DB2 1 end!"<<endl;
     }
@@ -364,8 +380,10 @@ void HybridMethods::FM_DB2(int K, double P,int domain_xi_1)
                 rst0->points.push_back(cloud_->points[scope[i]]);
             }        
         }
+        #if STORE
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+        #endif
         cid_++;
         cout<<"DB2 2 end!"<<endl;
     }
@@ -397,8 +415,10 @@ void HybridMethods::FM_Density(int K, double alpha,int domain_xi_1)
             rst0->points.push_back(cloud_->points[i]);
         }
     }
+    #if STORE
     pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
     pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+    #endif
     cid_++;
     cout<<"Desisty 1 end!"<<endl;
 }
@@ -432,6 +452,8 @@ void HybridMethods::FM_RegionGrowth(double thresh_eclidean, double thresh_tolera
     for(int i=0;i<clusters->size();i++){
        cluster_size_set.push_back((*clusters)[i].indices.size());
     }
+    cout<<"cluster size:"<<cluster_size_set.size()<<endl;
+
     double IQR=Quantile(cluster_size_set,0.75)-Quantile(cluster_size_set,0.25);
     double thresh=Quantile(cluster_size_set,0.75)+IQR*thresh_kIQR;
     for(int i=0;i<clusters->size();i++){
@@ -450,8 +472,10 @@ void HybridMethods::FM_RegionGrowth(double thresh_eclidean, double thresh_tolera
             }
         }     
     }
+    #if STORE
     pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
     pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+    #endif
     cid_++;
     cout<<"RegionGrowth end!"<<endl;
     accumulator_++;
@@ -473,12 +497,13 @@ void HybridMethods::FM_MajorityVote(int K,int domain_xi_1)
         int itmp=scope[i];
         vector<int> idx;
         vector<float> dist;
-        // kdtree_->nearestKSearch(itmp,K,idx,dist);
-        kdtree_->radiusSearch(itmp,pOle_->dmean_*200,idx,dist);
+        kdtree_->nearestKSearch(itmp,K,idx,dist);
+        // kdtree_->radiusSearch(itmp,pOle_->dmean_*200,idx,dist);
 
         double conf=0.0;
+        double T1=10*pOle_->dmean_;
         for(int j=0;j<idx.size();j++){
-            if(status_[idx[j]]==0)
+            if(status_[idx[j]]==0 && dist[j]<T1)
                 conf+=1.0;
         }
         conf=conf/K;
@@ -486,9 +511,10 @@ void HybridMethods::FM_MajorityVote(int K,int domain_xi_1)
         rst_mv_.records_[i].item1_=conf;
     }
 
-    double IQR=rst_mv_.GetQuantile(0.75)-rst_mv_.GetQuantile(0.25);
-    // double thresh=rst_mv_.GetQuantile(0.75)+IQR*3.0;
-    double thresh=(rst_mv_.GetMaximum()-rst_mv_.GetMinimum())*0.25+rst_mv_.GetMinimum();
+    // double IQR=rst_mv_.GetQuantile(0.75)-rst_mv_.GetQuantile(0.25);
+    // double thresh=rst_mv_.GetQuantile(0.75)+IQR*1.5;
+    // double thresh=(rst_mv_.GetMaximum()-rst_mv_.GetMinimum())*0.25+rst_mv_.GetMinimum();
+    double thresh=0.02;
     for(int i=0;i<scope.size();i++){
         if(rst_mv_.records_[i].item1_<thresh){
             status_[scope[i]]+=2;
@@ -498,69 +524,44 @@ void HybridMethods::FM_MajorityVote(int K,int domain_xi_1)
             rst0->points.push_back(cloud_->points[scope[i]]);
         }      
     }
+    #if STORE
     pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
     pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+    #endif
     cid_++;
     cout<<"MajorityVote end!"<<endl;
-
-    // rst_mv_.GetCorrespondingColor();
-    // for(int i=0;i<scope.size();i++){
-    //     V3 ctmp=rst_mv_.color_[i];
-    //     cloud_->points[scope[i]].r=ctmp.r;
-    //     cloud_->points[scope[i]].g=ctmp.g;
-    //     cloud_->points[scope[i]].b=ctmp.b;
-    // }
-    // pcl::io::savePLYFileBinary("Result/rst_cloud.ply",*cloud_);
 }
 
-void HybridMethods::DemonstrateResult(string path,int mode)
+void HybridMethods::DemonstrateResult(string path)
 {
     pcl::PointCloud<PointType>::Ptr rst_regular_cloud(new pcl::PointCloud<PointType>);
     pcl::PointCloud<PointType>::Ptr rst_irregular_cloud(new pcl::PointCloud<PointType>);
-    if(mode==STATUS){
-        double max_tmp=*max_element(status_.begin(),status_.end());;
-        if(max_tmp==1){
-             for(int i=0;i<status_.size();i++){
-                if(status_[i]==max_tmp){                    
-                    rst_irregular_cloud->points.push_back(cloud_->points[i]);
-                }
-                else{
-                    rst_regular_cloud->points.push_back(cloud_->points[i]);
-                }
+    double max_tmp=*max_element(status_.begin(),status_.end());;
+    if(max_tmp==1){
+            for(int i=0;i<status_.size();i++){
+            if(status_[i]==max_tmp){                    
+                rst_irregular_cloud->points.push_back(cloud_->points[i]);
             }
-            pcl::io::savePLYFileBinary(path+"_regular_cloud.ply",*rst_regular_cloud);
-            pcl::io::savePLYFileBinary(path+"_irregular_cloud.ply",*rst_irregular_cloud);
+            else{
+                rst_regular_cloud->points.push_back(cloud_->points[i]);
+            }
         }
-        else
-            cout<<"Status Error!"<<endl;
+        pcl::io::savePLYFileBinary(path+"_regular_cloud.ply",*rst_regular_cloud);
+        pcl::io::savePLYFileBinary(path+"_irregular_cloud.ply",*rst_irregular_cloud);
     }
-    else if(mode==MEVAL_COL){
-        rst_meval_.GetCorrespondingColor();
-        for(int i=0;i<rst_meval_.color_.size();i++){
-            V3 ctmp=rst_meval_.color_[i];
-            cloud_->points[i].r=ctmp.r;
-            cloud_->points[i].g=ctmp.g;
-            cloud_->points[i].b=ctmp.b;
-        }
+    else
+        cout<<"Status Error!"<<endl;
+}
+void HybridMethods::DemonstrateResult(string path, Table<Rrd1>& tb)
+{
+    tb.GetCorrespondingColor();
+    for(int i=0;i<tb.GetSize();i++){
+        V3 ctmp=tb.color_[i];
+        cloud_->points[i].r=ctmp.r;
+        cloud_->points[i].g=ctmp.g;
+        cloud_->points[i].b=ctmp.b;        
     }
-    else if(mode==SLOPE_COL){
-        rst_slope_.GetCorrespondingColor();
-        for(int i=0;i<rst_slope_.color_.size();i++){
-            V3 ctmp=rst_slope_.color_[i];
-            cloud_->points[i].r=ctmp.r;
-            cloud_->points[i].g=ctmp.g;
-            cloud_->points[i].b=ctmp.b;
-        }
-    }
-    else if(mode==DENSITY_COL){
-        rst_density_.GetCorrespondingColor();
-        for(int i=0;i<rst_density_.color_.size();i++){
-            V3 ctmp=rst_density_.color_[i];
-            cloud_->points[i].r=ctmp.r;
-            cloud_->points[i].g=ctmp.g;
-            cloud_->points[i].b=ctmp.b;
-        }
-    }
+    pcl::io::savePLYFileBinary(path+"_color.ply",*cloud_);
 }
 
 

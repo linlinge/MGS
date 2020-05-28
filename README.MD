@@ -4,11 +4,12 @@ This is the source code for the paper "MMOD: A Flexible Module-based Outliers De
 |---- main.cpp : It contains the entry of the main function, and you can choose different patterns in this file.  
 |---- glib : This folder contains some basic functions write by myself.
 |---- OLEModule.h, OLEModule.cpp :
-|---- HybridMethods.h, HybridMethods.cpp : It realized the function of modules' definition and hybrid methods generation.  
+|---- HybridMethods.h,.cpp : It realized the function of modules' definition and hybrid methods generation.  
 ```
 
 ## Prerequisities  
 * PCL
+* Eigen
 * OpenMP
 
 ## Setup  

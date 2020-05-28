@@ -16,6 +16,7 @@
 #define FULL_DOMAIN -1
 #define REGULAR_DOMAIN 0
 #define IRREGULAR_DOMAIN 1
+#define STORE 1
 extern pcl::PointCloud<PointType>::Ptr cloud_;
 extern pcl::search::KdTree<PointType>::Ptr kdtree_;
 extern OLEModule* pOle_;
@@ -71,5 +72,6 @@ class HybridMethods
 
         /* Status Operations */
         void GetScopeIndices(int st,vector<int>& cIdx);
-        void DemonstrateResult(string str,int mode=STATUS);
+        void DemonstrateResult(string path,Table<Rrd1>& tb);
+        void DemonstrateResult(string path);
 };
