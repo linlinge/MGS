@@ -7,7 +7,7 @@ This is the source code for the paper "MMOD: A Flexible Module-based Outliers De
 |---- HybridMethods.h,.cpp : It realized the function of modules' definition and hybrid methods generation.  
 ```
 
-## Prerequisities and Setup    
+## Prerequisities   
 * PCL
 * Eigen
 * OpenMP
@@ -37,7 +37,6 @@ This is the source code for the paper "MMOD: A Flexible Module-based Outliers De
 # cmake ..
 # make -j12
 ```
-## Run
 ## Experiments
 You can find the comparison methods PMR [1], LoOP [2] and PointCleanNet [3] in the reference section.
 ## Reference  
