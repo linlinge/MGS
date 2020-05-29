@@ -14,4 +14,5 @@ ADD_LIBRARY(GLIB BasicGeometry.cpp
                  Table.h
                  Table.cpp
                  VectorExtend.cpp
-                 SignalProcessing.cpp)
+                 SignalProcessing.cpp
+                 StringExtend.cpp)

@@ -1,4 +1,4 @@
-# MMOD: A Flexible Module-based Outliers Detection Method for 3D Point Clouds
+# MGS: A Flexible Methods Generation Scheme for Point Cloud Outliers Detection
 This is the source code for the paper "MMOD: A Flexible Module-based Outliers Detection Method for 3D Point Clouds". The file structure description for this project is presented in the following.  
 ```
 |---- main.cpp : It contains the entry of the main function, and you can choose different patterns in this file.  

@@ -20,3 +20,10 @@ int VectorIQR(vector<double>& dat);
 void VectorDifference(vector<int>& dat1,vector<int>& dat2,vector<int>& out);
 void VectorUnion(vector<int>& dat1,vector<int>& dat2,vector<int>& out);
 void VectorIntersection(vector<int>& dat1,vector<int>& dat2,vector<int>& out);
+
+/* Find */
+int VecFindPos(vector<int>& buf,int dat);
+/* Get the indices of all elements of buf2 in buf1*/
+void VecFindPos(vector<int>& buf1,vector<int>& buf2, vector<int>& out);
+void VecPrint(vector<int>& dat);
+void VecUnique(vector<int>& dat);

@@ -7,15 +7,15 @@
 #include "Table.h"
 #include "OLEModule.h"
 #include "SignalProcessing.h"
+#include "VectorExtend.h"
+#include "StringExtend.h"
+
 #define SLOPE_BIN   0x01
 #define SLOPE_COL   0x02
 #define MEVAL_BIN   0x04
 #define MEVAL_COL   0x08
 #define DENSITY_COL 0x10
 #define STATUS      0xFF
-#define FULL_DOMAIN -1
-#define REGULAR_DOMAIN 0
-#define IRREGULAR_DOMAIN 1
 #define STORE 1
 extern pcl::PointCloud<PointType>::Ptr cloud_;
 extern pcl::search::KdTree<PointType>::Ptr kdtree_;
@@ -37,8 +37,6 @@ class HybridMethods
         OLEModule* pOle_;
         int N_;
         int accumulator_;
-        int domain_xi_1_;
-        int cid_;
 
         /* Construction */
         HybridMethods(pcl::PointCloud<PointType>::Ptr cloud,pcl::search::KdTree<PointType>::Ptr kdtree,OLEModule* pOle){
@@ -51,18 +49,16 @@ class HybridMethods
                 status_[i]=0;
             }
             accumulator_=1;
-            domain_xi_1_=FULL_DOMAIN;
-            cid_=0;
         }
 
         /* Function Modules*/
-        void FM_Prox(int K, double kIQR,int domain_xi_1=FULL_DOMAIN);          // Outliers detection based on proximity
-        void FM_MEval(int K, double kIQR,int domain_xi_1=FULL_DOMAIN);      // IRPC: Irregular and Regular Points Classfication based on Minor Eigenvalue
-        void FM_NID(int K, double kIQR, int domain_xi_1=FULL_DOMAIN);
-        void FM_DB2(int K,double P,int domain_xi_1=FULL_DOMAIN);
-        void FM_Density(int K, double alpha,int domain_xi_1=FULL_DOMAIN);
-        void FM_RegionGrowth(double thresh_eclidean, double thresh_tolerance,double thresh_kIQR, int domain_xi_1);
-        void FM_MajorityVote(int K,int domain_xi_1=FULL_DOMAIN);
+        void FM_Prox(int K, double kIQR,string domain="0");          // Outliers detection based on proximity
+        void FM_MEval(int K, double kIQR,string domain="0");      // IRPC: Irregular and Regular Points Classfication based on Minor Eigenvalue
+        void FM_NID(int K, double kIQR, string domain="0");
+        void FM_DB2(int K,double P,string domain="0");
+        void FM_Density(int K, double alpha,string domain="0");
+        void FM_RegionGrowth(double thresh_eclidean, double thresh_tolerance,double thresh_kIQR, string domain="0");
+        void FM_MajorityVote(int K,string domain="0");
 
         /* Combination Operator */
         vector<int> status_;
@@ -71,7 +67,7 @@ class HybridMethods
         void J(int domain_xi_2);
 
         /* Status Operations */
-        void GetScopeIndices(int st,vector<int>& cIdx);
+        void GetScopeIndices(string str,vector<int>& cIdx);
         void DemonstrateResult(string path,Table<Rrd1>& tb);
         void DemonstrateResult(string path);
 };

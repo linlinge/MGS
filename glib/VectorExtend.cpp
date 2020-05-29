@@ -94,3 +94,39 @@ void VectorIntersection(vector<int>& dat1,vector<int>& dat2,vector<int>& out)
     sort(dat2.begin(),dat2.end());
     set_intersection(dat1.begin(),dat1.end(),dat2.begin(),dat2.end(),std::back_inserter(out));
 }
+
+
+int VecFindPos(vector<int>& buf,int dat)
+{
+    vector<int>::iterator it=find(buf.begin(),buf.end(),dat);
+    if(it!=buf.end())
+        return it-buf.begin();
+    else
+        return -1;
+}
+
+void VecFindPos(vector<int>& buf1,vector<int>& buf2, vector<int>& out)
+{
+    for(int i=0;i<buf2.size();i++){
+        for(int j=0;j<buf1.size();j++){
+            if(buf1[j]==buf2[i])
+                out.push_back(j);
+        }            
+    }
+}
+
+void VecPrint(vector<int>& dat)
+{
+    for(int i=0;i<dat.size();i++)
+        cout<<dat[i]<<" ";
+    cout<<endl;
+}
+
+void VecUnique(vector<int>& dat)
+{
+    vector<int> v;
+    v.insert(v.end(),dat.begin(),dat.end());
+    sort(v.begin(),v.end());
+    v.erase(unique(v.begin(),v.end()),v.end());
+    VecPrint(v);
+}

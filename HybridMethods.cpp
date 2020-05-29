@@ -11,388 +11,230 @@ bool customRegionGrowing(const PointType& point_a, const PointType& point_b, flo
 
 
 /* Public Function */
-void HybridMethods::GetScopeIndices(int st,vector<int>& cIdx)
+void HybridMethods::GetScopeIndices(string str,vector<int>& cIdx)
 {
-    cIdx.clear();
-    for(int i=0;i<status_.size();i++){
-        if(status_[i]==st)
-            cIdx.push_back(i);
-    }     
-}
-
-void HybridMethods::FM_Prox(int K, double kIQR,int domain_xi_1)
-{
-    domain_xi_1_=domain_xi_1;
-    pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
-    pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
-    // Default Scope
-    if(domain_xi_1==FULL_DOMAIN){
-        cout<<"Prox 1 Start"<<endl;
-        rst_slope_.Clear();
-        rst_slope_.Resize(cloud_->points.size());
-        Eigen::MatrixXd xtmp(K,1);
-        for(int i=0;i<K;i++) xtmp(i,0)=i;
-        // calculate y
+    if("full"==str){
+        cIdx.resize(cloud_->points.size());
         #pragma omp parallel for
-        for(int i=0;i<cloud_->points.size();i++){
-            vector<int> idx(K);
-            vector<float> dist(K);
-            Eigen::MatrixXd ytmp(K,1);
-            kdtree_->nearestKSearch(cloud_->points[i], K, idx, dist);
-            for(int j=0;j<dist.size();j++) ytmp(j,0)=dist[j];
-            Eigen::MatrixXd atmp=(xtmp.transpose()*xtmp).inverse()*xtmp.transpose()*ytmp;
-            rst_slope_.records_[i].id_=i;
-            rst_slope_.records_[i].item1_=atmp(0,0);
-        }
-    
-        // double t=rst_slope_.ReversePDF(p);
-        // for(int i=0;i<N_;i++){
-        //     if(rst_slope_.records_[i].item1_>t){
-        //         status_[i]+=1;
-        //     }
-        // }
-
-        /* Result Classification */
-        double IQR=rst_slope_.GetQuantile(0.75)-rst_slope_.GetQuantile(0.25);
-        double thresh=rst_slope_.GetQuantile(0.75)+IQR*kIQR;
-        for(int i=0;i<rst_slope_.GetSize();i++){
-            if(rst_slope_.records_[i].item1_>thresh){
-                status_[i]=1;
-                rst1->points.push_back(cloud_->points[i]);
-            }
-            else{
-                rst0->points.push_back(cloud_->points[i]);
-            }
-        }
-        #if STORE
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
-        cout<<"yes"<<endl;
-        #endif
-
-        cid_++;
-        cout<<"Prox 1 end!"<<endl;
+        for(int i=0;i<cIdx.size();i++)
+            cIdx[i]=i;
     }
     else{
-        cout<<"Prox 2 start!"<<endl;
-        vector<int> scope;
-        GetScopeIndices(domain_xi_1,scope);
-
-        rst_slope_.Clear();
-        rst_slope_.Resize(scope.size());
-        pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
-        pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
-        for(int i=0;i<scope.size();i++)
-            cloud_tmp->points.push_back(cloud_->points[scope[i]]);
-        kdtree_tmp->setInputCloud(cloud_tmp);
-
-        Eigen::MatrixXd xtmp(K,1);
-        for(int i=0;i<K;i++) xtmp(i,0)=i;
-        // calculate y
-        #pragma omp parallel for
-        for(int i=0;i<scope.size();i++){
-            vector<int> idx(K);
-            vector<float> dist(K);
-            Eigen::MatrixXd ytmp(K,1);
-            int itmp=scope[i];
-            kdtree_tmp->nearestKSearch(cloud_->points[itmp], K, idx, dist);
-            for(int j=0;j<dist.size();j++) ytmp(j,0)=dist[j];
-            Eigen::MatrixXd atmp=(xtmp.transpose()*xtmp).inverse()*xtmp.transpose()*ytmp;
-            rst_slope_.records_[i].id_=itmp;
-            rst_slope_.records_[i].item1_=atmp(0,0);
-        }
-        // double t=rst_slope_.ReversePDF(p);
-        // for(int i=0;i<scope.size();i++){
-        //     if(rst_slope_.records_[i].item1_>t){
-        //         status_[scope[i]]+=1;
-        //     }
-        // }
-
-        double IQR=rst_slope_.GetQuantile(0.75)-rst_slope_.GetQuantile(0.25);
-        double thresh=rst_slope_.GetQuantile(0.75)+IQR*kIQR;
-        for(int i=0;i<scope.size();i++){
-            if(rst_slope_.records_[i].item1_>thresh){
-                status_[scope[i]]+=accumulator_; 
-                rst1->points.push_back(cloud_->points[scope[i]]);
-            }
-            else{
-                rst0->points.push_back(cloud_->points[scope[i]]);
-            }
-        }
-        #if STORE
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
-        #endif
-        cid_++;
-        cout<<"Prox 2 end!"<<endl;
+        vector<int> emnt; // elements
+        Str2Vec(str,",",emnt);
+        VecFindPos(status_,emnt,cIdx);
     }
+}
+
+
+void HybridMethods::FM_Prox(int K, double kIQR,string domain)
+{
+    pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
+    pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
+    cout<<"Prox start!"<<endl;
+    vector<int> scope;
+    GetScopeIndices(domain,scope);
+
+    rst_slope_.Clear();
+    rst_slope_.Resize(scope.size());
+    pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
+    pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
+    for(int i=0;i<scope.size();i++)
+        cloud_tmp->points.push_back(cloud_->points[scope[i]]);
+    kdtree_tmp->setInputCloud(cloud_tmp);
+
+    Eigen::MatrixXd xtmp(K,1);
+    for(int i=0;i<K;i++) xtmp(i,0)=i;
+    // calculate y
+    #pragma omp parallel for
+    for(int i=0;i<scope.size();i++){
+        vector<int> idx(K);
+        vector<float> dist(K);
+        Eigen::MatrixXd ytmp(K,1);
+        int itmp=scope[i];
+        kdtree_tmp->nearestKSearch(cloud_->points[itmp], K, idx, dist);
+        for(int j=0;j<dist.size();j++) ytmp(j,0)=dist[j];
+        Eigen::MatrixXd atmp=(xtmp.transpose()*xtmp).inverse()*xtmp.transpose()*ytmp;
+        rst_slope_.records_[i].id_=itmp;
+        rst_slope_.records_[i].item1_=atmp(0,0);
+    }
+    // double t=rst_slope_.ReversePDF(p);
+    // for(int i=0;i<scope.size();i++){
+    //     if(rst_slope_.records_[i].item1_>t){
+    //         status_[scope[i]]+=1;
+    //     }
+    // }
+
+    double IQR=rst_slope_.GetQuantile(0.75)-rst_slope_.GetQuantile(0.25);
+    double thresh=rst_slope_.GetQuantile(0.75)+IQR*kIQR;
+    for(int i=0;i<scope.size();i++){
+        if(rst_slope_.records_[i].item1_>thresh){
+            status_[scope[i]]=-accumulator_; 
+            rst1->points.push_back(cloud_->points[scope[i]]);
+        }
+        else{
+            status_[scope[i]]=accumulator_; 
+            rst0->points.push_back(cloud_->points[scope[i]]);
+        }
+    }
+    #if STORE
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+").ply",*rst0);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+"-).ply",*rst1);
+    #endif
+    cout<<"Prox end!"<<endl;
     accumulator_++;
 }
 
-void HybridMethods::FM_MEval(int K, double alpha,int domain_xi_1)
+void HybridMethods::FM_MEval(int K, double alpha,string domain)
 {
-    domain_xi_1_=domain_xi_1;
     pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
     pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
-    if(domain_xi_1==FULL_DOMAIN){
-        cout<<"MEval 1 start!"<<endl;
-        rst_meval_.Clear();
-        rst_meval_.Resize(cloud_->points.size());
-        #pragma omp parallel for
-        for(int i=0;i<cloud_->points.size();i++){
-            // double eval_tmp=GetMEvalRadius(cloud_,K*pOle_->dmean_,kdtree_,i);
-            double eval_tmp=GetMEvalKNeighours(cloud_,K,kdtree_,i);
-            rst_meval_.records_[i].id_=i;
-            rst_meval_.records_[i].item1_=eval_tmp;
-        }
-        // rst_meval_.Standardize_Zscore();
-        // rst_meval_.Normalize_Tanh();
-        double IQR=rst_meval_.GetQuantile(0.75)-rst_meval_.GetQuantile(0.25);
-        double thresh=rst_meval_.GetQuantile(0.75)+IQR*alpha;
-        // #pragma omp parallel for
-        for(int i=0;i<N_;i++){
-            if(rst_meval_.records_[i].item1_>thresh){
-                status_[i]+=accumulator_;
-                rst1->points.push_back(cloud_->points[i]);
-            }
-            else{
-                rst0->points.push_back(cloud_->points[i]);
-            }
-        }
-        #if STORE
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
-        #endif
-        cid_++;
-        cout<<"MEval 1 end!"<<endl;
-    }
-    else{
-        cout<<"MEval 2 start!"<<endl;
-        vector<int> scope;
-        GetScopeIndices(domain_xi_1,scope);
-        rst_meval_.Clear();
-        rst_meval_.Resize(scope.size());
-        pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
-        pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
-        for(int i=0;i<scope.size();i++)
-            cloud_tmp->points.push_back(cloud_->points[scope[i]]);
-        kdtree_tmp->setInputCloud(cloud_tmp);
+    cout<<"MEval start!"<<endl;
+    vector<int> scope;
+    GetScopeIndices(domain,scope);
+    rst_meval_.Clear();
+    rst_meval_.Resize(scope.size());
+    pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
+    pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
+    for(int i=0;i<scope.size();i++)
+        cloud_tmp->points.push_back(cloud_->points[scope[i]]);
+    kdtree_tmp->setInputCloud(cloud_tmp);
 
-        #pragma omp parallel for
-        for(int i=0;i<scope.size();i++){
-            int itmp=scope[i];
-            // double eval_tmp=GetMEvalRadius(cloud_tmp,K*pOle_->dmean_,kdtree_tmp,i);
-            double eval_tmp=GetMEvalKNeighours(cloud_tmp,K,kdtree_tmp,i);
-            rst_meval_.records_[i].id_=itmp;
-            rst_meval_.records_[i].item1_=eval_tmp;
-        }
-        // rst_meval_.Standardize_Zscore();
-        // rst_meval_.Normalize_Tanh();
-        double IQR=rst_meval_.GetQuantile(0.75)-rst_meval_.GetQuantile(0.25);
-        double thresh=rst_meval_.GetQuantile(0.75)+IQR*alpha;
-        // #pragma omp parallel for
-        for(int i=0;i<scope.size();i++){
-            if(rst_meval_.records_[i].item1_>thresh){
-                status_[scope[i]]+=accumulator_;
-                rst1->points.push_back(cloud_->points[scope[i]]);
-            }
-            else{
-                rst0->points.push_back(cloud_->points[scope[i]]);
-            }
-        }
-        #if STORE
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
-        #endif
-        cid_++;
-        cout<<"MEval 2 end!"<<endl;
+    #pragma omp parallel for
+    for(int i=0;i<scope.size();i++){
+        int itmp=scope[i];
+        // double eval_tmp=GetMEvalRadius(cloud_tmp,K*pOle_->dmean_,kdtree_tmp,i);
+        double eval_tmp=GetMEvalKNeighours(cloud_tmp,K,kdtree_tmp,i);
+        rst_meval_.records_[i].id_=itmp;
+        rst_meval_.records_[i].item1_=eval_tmp;
     }
+    // rst_meval_.Standardize_Zscore();
+    // rst_meval_.Normalize_Tanh();
+    double IQR=rst_meval_.GetQuantile(0.75)-rst_meval_.GetQuantile(0.25);
+    double thresh=rst_meval_.GetQuantile(0.75)+IQR*alpha;
+    // #pragma omp parallel for
+    for(int i=0;i<scope.size();i++){
+        if(rst_meval_.records_[i].item1_>thresh){
+            status_[scope[i]]=-accumulator_;
+            rst1->points.push_back(cloud_->points[scope[i]]);
+        }
+        else{
+            status_[scope[i]]=accumulator_;
+            rst0->points.push_back(cloud_->points[scope[i]]);
+        }
+    }
+    #if STORE
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+").ply",*rst0);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+"-).ply",*rst1);
+    #endif
+    cout<<"MEval end!"<<endl;
     accumulator_++;
 }
 
-void HybridMethods::FM_NID(int K, double p, int domain_xi_1)
+void HybridMethods::FM_NID(int K, double p, string domain)
 {
-    domain_xi_1_=domain_xi_1;
     pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
     pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
-   if(domain_xi_1==FULL_DOMAIN){
-        cout<<"NID 1 start!"<<endl;
-        rst_nid_.Clear();
-        rst_nid_.Resize(cloud_->points.size());
-        Eigen::MatrixXd xtmp(K,1);
-        for(int i=0;i<K;i++) xtmp(i,0)=i;
-        // calculate y
-        #pragma omp parallel for
-        for(int i=0;i<cloud_->points.size();i++){
-            vector<int> idx(K);
-            vector<float> dist(K);
-            Eigen::MatrixXd ytmp(K,1);
-            kdtree_->nearestKSearch(cloud_->points[i], K, idx, dist);
-            for(int j=0;j<dist.size();j++) ytmp(j,0)=dist[j];
-            Eigen::MatrixXd atmp=(xtmp.transpose()*xtmp).inverse()*xtmp.transpose()*ytmp;
-            rst_nid_.records_[i].id_=i;
-            rst_nid_.records_[i].item1_=atmp(0,0);
-        }
+    cout<<"NID start!"<<endl;
+    vector<int> scope;
+    GetScopeIndices(domain,scope);
+    rst_nid_.Clear();
+    rst_nid_.Resize(scope.size());
+    pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
+    pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
+    for(int i=0;i<scope.size();i++)
+        cloud_tmp->points.push_back(cloud_->points[scope[i]]);
+    kdtree_tmp->setInputCloud(cloud_tmp);
 
-        rst_nid_.LocalFilter("average",cloud_,30);
-        rst_nid_.Standardize_Zscore();
-        
-        for(int i=0;i<rst_nid_.GetSize();i++){
-            double etmp=GaussErrorFunction(rst_nid_.records_[i].item1_);
-            if(etmp>p){
-                status_[i]+=accumulator_;                
-                rst1->points.push_back(cloud_->points[i]);
-            }
-            else{
-                rst0->points.push_back(cloud_->points[i]);
-            }
-        }
-        #if STORE
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
-        #endif
-        cid_++;
-        cout<<"NID 1 end!"<<endl;
+    Eigen::MatrixXd xtmp(K,1);
+    for(int i=0;i<K;i++) xtmp(i,0)=i;
+    // calculate y
+    #pragma omp parallel for
+    for(int i=0;i<scope.size();i++){
+        vector<int> idx(K);
+        vector<float> dist(K);
+        Eigen::MatrixXd ytmp(K,1);
+        int itmp=scope[i];
+        kdtree_tmp->nearestKSearch(cloud_->points[itmp], K, idx, dist);
+        for(int j=0;j<dist.size();j++) ytmp(j,0)=dist[j];
+        Eigen::MatrixXd atmp=(xtmp.transpose()*xtmp).inverse()*xtmp.transpose()*ytmp;
+        rst_nid_.records_[i].id_=itmp;
+        rst_nid_.records_[i].item1_=atmp(0,0);
     }
-    else{
-        cout<<"NID 2 start!"<<endl;
-        vector<int> scope;
-        GetScopeIndices(domain_xi_1,scope);
-        rst_nid_.Clear();
-        rst_nid_.Resize(scope.size());
-        pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
-        pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
-        for(int i=0;i<scope.size();i++)
-            cloud_tmp->points.push_back(cloud_->points[scope[i]]);
-        kdtree_tmp->setInputCloud(cloud_tmp);
 
-        Eigen::MatrixXd xtmp(K,1);
-        for(int i=0;i<K;i++) xtmp(i,0)=i;
-        // calculate y
-        #pragma omp parallel for
-        for(int i=0;i<scope.size();i++){
-            vector<int> idx(K);
-            vector<float> dist(K);
-            Eigen::MatrixXd ytmp(K,1);
-            int itmp=scope[i];
-            kdtree_tmp->nearestKSearch(cloud_->points[itmp], K, idx, dist);
-            for(int j=0;j<dist.size();j++) ytmp(j,0)=dist[j];
-            Eigen::MatrixXd atmp=(xtmp.transpose()*xtmp).inverse()*xtmp.transpose()*ytmp;
-            rst_nid_.records_[i].id_=itmp;
-            rst_nid_.records_[i].item1_=atmp(0,0);
+    rst_nid_.LocalFilter("average",cloud_tmp,80);
+    rst_nid_.Standardize_Zscore();
+
+    for(int i=0;i<rst_nid_.GetSize();i++){
+        double etmp=GaussErrorFunction(rst_nid_.records_[i].item1_);
+        if(etmp>p){
+            status_[scope[i]]=-accumulator_;
+            rst1->points.push_back(cloud_->points[scope[i]]);
         }
-
-        rst_nid_.LocalFilter("average",cloud_tmp,80);
-        rst_nid_.Standardize_Zscore();
-
-        for(int i=0;i<rst_nid_.GetSize();i++){
-            double etmp=GaussErrorFunction(rst_nid_.records_[i].item1_);
-            if(etmp>p){
-                status_[scope[i]]+=accumulator_;
-                rst1->points.push_back(cloud_->points[scope[i]]);
-            }
-            else{
-                rst0->points.push_back(cloud_->points[scope[i]]);
-            }            
-        }
-        #if STORE
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
-        #endif
-        cid_++;
-        cout<<"NID 2 end!"<<endl;
+        else{
+            status_[scope[i]]=accumulator_;
+            rst0->points.push_back(cloud_->points[scope[i]]);
+        }            
     }
+    #if STORE
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+").ply",*rst0);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+"-).ply",*rst1);
+    #endif
+    cout<<"NID end!"<<endl;
     accumulator_++;     
 }
 
 
-void HybridMethods::FM_DB2(int K, double P,int domain_xi_1)
+void HybridMethods::FM_DB2(int K, double P,string domain)
 {
-    domain_xi_1_=domain_xi_1;
     pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
     pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
     rst_db2_.Clear();
-    if(domain_xi_1!=FULL_DOMAIN){
-        cout<<"DB2 1 start!"<<endl;
-        rst_db2_.Resize(cloud_->points.size());
-        // Init ytmp
-        // #pragma omp parallel for
-        for(int i=0;i<cloud_->points.size();i++){
-            vector<int> idx(K);
-            vector<float> dist(K);
-            kdtree_->nearestKSearch(i, K, idx, dist); 
-            vector<double> db;
-            DaubechiesWavelet(dist,db);
-            db.pop_back();
-            rst_db2_.records_[i].id_=i;
-            rst_db2_.records_[i].item1_=VectorMaximum(db);
-        }
+    cout<<"DB start!"<<endl;
+    vector<int> scope;
+    GetScopeIndices(domain,scope);
+    rst_db2_.Resize(scope.size());
+    pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
+    pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
+    for(int i=0;i<scope.size();i++)
+        cloud_tmp->points.push_back(cloud_->points[scope[i]]);
+    kdtree_tmp->setInputCloud(cloud_tmp);
 
-        double IQR=rst_db2_.GetQuantile(0.75)-rst_db2_.GetQuantile(0.25);
-        double thresh=rst_db2_.GetQuantile(0.75)+IQR*P;
-        for(int i=0;i<rst_db2_.records_.size();i++){
-            if(rst_db2_.records_[i].item1_>thresh){
-                status_[i]=1;
-                rst1->points.push_back(cloud_->points[i]);
-            }
-            else{
-                rst0->points.push_back(cloud_->points[i]);
-            }
-        }
-        #if STORE
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
-        #endif
-        cid_++;
-        cout<<"DB2 1 end!"<<endl;
+    // Init ytmp
+    #pragma omp parallel for
+    for(int i=0;i<scope.size();i++){
+        vector<int> idx(K);
+        vector<float> dist(K);
+        kdtree_tmp->nearestKSearch(cloud_->points[scope[i]], K, idx, dist); 
+        vector<double> db;
+        DaubechiesWavelet(dist,db);
+        db.pop_back();
+        rst_db2_.records_[i].id_=i;
+        rst_db2_.records_[i].item1_=VectorMaximum(db);
     }
-    else{
-        cout<<"DB2 2 start!"<<endl;
-        vector<int> scope;
-        GetScopeIndices(domain_xi_1,scope);
-        rst_db2_.Resize(scope.size());
-        pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
-        pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
-        for(int i=0;i<scope.size();i++)
-            cloud_tmp->points.push_back(cloud_->points[scope[i]]);
-        kdtree_tmp->setInputCloud(cloud_tmp);
-
-        // Init ytmp
-        // #pragma omp parallel for
-        for(int i=0;i<scope.size();i++){
-            vector<int> idx(K);
-            vector<float> dist(K);
-            kdtree_tmp->nearestKSearch(cloud_->points[scope[i]], K, idx, dist); 
-            vector<double> db;
-            DaubechiesWavelet(dist,db);
-            db.pop_back();
-            rst_db2_.records_[i].id_=i;
-            rst_db2_.records_[i].item1_=VectorMaximum(db);
+    double IQR=rst_db2_.GetQuantile(0.75)-rst_db2_.GetQuantile(0.25);
+    double thresh=rst_db2_.GetQuantile(0.75)+IQR*P;
+    for(int i=0;i<scope.size();i++){
+        if(rst_db2_.records_[i].item1_>thresh){
+            status_[scope[i]]=-accumulator_;
+            rst1->points.push_back(cloud_->points[scope[i]]);
         }
-        double IQR=rst_db2_.GetQuantile(0.75)-rst_db2_.GetQuantile(0.25);
-        double thresh=rst_db2_.GetQuantile(0.75)+IQR*P;
-        for(int i=0;i<scope.size();i++){
-            if(rst_db2_.records_[i].item1_>thresh){
-                status_[scope[i]]+=2;
-                rst1->points.push_back(cloud_->points[scope[i]]);
-            }
-            else{
-                rst0->points.push_back(cloud_->points[scope[i]]);
-            }        
-        }
-        #if STORE
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-        pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
-        #endif
-        cid_++;
-        cout<<"DB2 2 end!"<<endl;
+        else{
+            status_[scope[i]]=accumulator_;
+            rst0->points.push_back(cloud_->points[scope[i]]);
+        }        
     }
+    #if STORE
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+").ply",*rst0);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+"-).ply",*rst1);
+    #endif
+    cout<<"DB end!"<<endl;
+    accumulator_++;
 }
 
-void HybridMethods::FM_Density(int K, double alpha,int domain_xi_1)
+void HybridMethods::FM_Density(int K, double alpha,string domain)
 {
     cout<<"Desisty 1 start!"<<endl;
-    domain_xi_1_=domain_xi_1;
     pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
     pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
     rst_density_.Resize(cloud_->points.size());
@@ -416,16 +258,15 @@ void HybridMethods::FM_Density(int K, double alpha,int domain_xi_1)
         }
     }
     #if STORE
-    pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-    pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+").ply",*rst0);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+"-).ply",*rst1);
     #endif
-    cid_++;
     cout<<"Desisty 1 end!"<<endl;
+    accumulator_++;
 }
 
-void HybridMethods::FM_RegionGrowth(double thresh_eclidean, double thresh_tolerance,double thresh_kIQR, int domain_xi_1)
+void HybridMethods::FM_RegionGrowth(double thresh_eclidean, double thresh_tolerance,double thresh_kIQR, string domain)
 {
-    domain_xi_1_=domain_xi_1;
     cout<<"RegionGrowth start!"<<endl;
     vector<int> scope;
     pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
@@ -435,7 +276,7 @@ void HybridMethods::FM_RegionGrowth(double thresh_eclidean, double thresh_tolera
     pcl::IndicesClustersPtr large_clusters (new pcl::IndicesClusters);
     pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
     pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
-    GetScopeIndices(domain_xi_1,scope);
+    GetScopeIndices(domain,scope);
 
     for(int i=0;i<scope.size();i++)
         cloud_tmp->points.push_back(cloud_->points[scope[i]]);
@@ -458,37 +299,36 @@ void HybridMethods::FM_RegionGrowth(double thresh_eclidean, double thresh_tolera
     double thresh=Quantile(cluster_size_set,0.75)+IQR*thresh_kIQR;
     for(int i=0;i<clusters->size();i++){
         int current_cluster_size=(*clusters)[i].indices.size();
-        if(current_cluster_size>thresh){            
+        if(current_cluster_size<=thresh){            
             for(int j=0;j<(*clusters)[i].indices.size();j++){
                 int itmp=GetIndex(kdtree_,cloud_tmp->points[(*clusters)[i].indices[j]]);
-                status_[itmp]+=accumulator_;
+                status_[itmp]=-accumulator_;
                 rst1->points.push_back(cloud_->points[itmp]);
             }
         }
         else{
              for(int j=0;j<(*clusters)[i].indices.size();j++){
-                int itmp=GetIndex(kdtree_,cloud_tmp->points[(*clusters)[i].indices[j]]);                
+                int itmp=GetIndex(kdtree_,cloud_tmp->points[(*clusters)[i].indices[j]]);
+                status_[itmp]=accumulator_;
                 rst0->points.push_back(cloud_->points[itmp]);
             }
         }     
     }
     #if STORE
-    pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-    pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+").ply",*rst0);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+"-).ply",*rst1);
     #endif
-    cid_++;
     cout<<"RegionGrowth end!"<<endl;
     accumulator_++;
 }
 
-void HybridMethods::FM_MajorityVote(int K,int domain_xi_1)
+void HybridMethods::FM_MajorityVote(int K,string domain)
 {
-    domain_xi_1_=domain_xi_1;
     cout<<"MajorityVote start!"<<endl;
     pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
     pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
     vector<int> scope;
-    GetScopeIndices(domain_xi_1,scope);
+    GetScopeIndices(domain,scope);
     Table<Rrd1> rst_mv_;
     rst_mv_.Resize(scope.size());
 
@@ -501,9 +341,9 @@ void HybridMethods::FM_MajorityVote(int K,int domain_xi_1)
         // kdtree_->radiusSearch(itmp,pOle_->dmean_*200,idx,dist);
 
         double conf=0.0;
-        double T1=10*pOle_->dmean_;
+        double T1=5*pOle_->dmean_;
         for(int j=0;j<idx.size();j++){
-            if(status_[idx[j]]==0 && dist[j]<T1)
+            if(status_[idx[j]]>0 && dist[j]<T1)
                 conf+=1.0;
         }
         conf=conf/K;
@@ -517,33 +357,36 @@ void HybridMethods::FM_MajorityVote(int K,int domain_xi_1)
     double thresh=0.02;
     for(int i=0;i<scope.size();i++){
         if(rst_mv_.records_[i].item1_<thresh){
-            status_[scope[i]]+=2;
+            status_[scope[i]]=-accumulator_;
             rst1->points.push_back(cloud_->points[scope[i]]);
         }
         else{
+            status_[scope[i]]=accumulator_;
             rst0->points.push_back(cloud_->points[scope[i]]);
         }      
     }
     #if STORE
-    pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_0.ply",*rst0);
-    pcl::io::savePLYFileBinary("Result/rst_"+to_string(cid_)+"_1.ply",*rst1);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+").ply",*rst0);
+    pcl::io::savePLYFileBinary("Result/rst("+to_string(accumulator_)+"-).ply",*rst1);
     #endif
-    cid_++;
     cout<<"MajorityVote end!"<<endl;
+    accumulator_++;
 }
 
 void HybridMethods::DemonstrateResult(string path)
 {
     pcl::PointCloud<PointType>::Ptr rst_regular_cloud(new pcl::PointCloud<PointType>);
     pcl::PointCloud<PointType>::Ptr rst_irregular_cloud(new pcl::PointCloud<PointType>);
-    double max_tmp=*max_element(status_.begin(),status_.end());;
-    if(max_tmp==1){
+    double max_tmp=*max_element(status_.begin(),status_.end());
+    VecUnique(status_);
+
+    if(max_tmp>0){
             for(int i=0;i<status_.size();i++){
-            if(status_[i]==max_tmp){                    
-                rst_irregular_cloud->points.push_back(cloud_->points[i]);
+            if(status_[i]>0){                    
+                rst_regular_cloud->points.push_back(cloud_->points[i]);
             }
             else{
-                rst_regular_cloud->points.push_back(cloud_->points[i]);
+                rst_irregular_cloud->points.push_back(cloud_->points[i]);
             }
         }
         pcl::io::savePLYFileBinary(path+"_regular_cloud.ply",*rst_regular_cloud);
@@ -563,153 +406,3 @@ void HybridMethods::DemonstrateResult(string path, Table<Rrd1>& tb)
     }
     pcl::io::savePLYFileBinary(path+"_color.ply",*cloud_);
 }
-
-
-void HybridMethods::J(int domain_xi_2)
-{
-  if(domain_xi_1_== FULL_DOMAIN){
-      if(domain_xi_2==REGULAR_DOMAIN){
-            #pragma omp parallel for
-            for(int i=0;i<status_.size();i++){
-                if(status_[i]!=2)
-                    status_[i]=1;
-                else
-                    status_[i]=0;
-            }
-      }
-      else{
-           #pragma omp parallel for
-           for(int i=0;i<status_.size();i++){
-                if(status_[i]>0)
-                    status_[i]=1;
-                else
-                    status_[i]=0;
-           }
-      }        
-  }
-  else if(domain_xi_1_==REGULAR_DOMAIN){
-      if(domain_xi_2==REGULAR_DOMAIN){
-         #pragma omp parallel for
-         for(int i=0;i<status_.size();i++){
-            if(status_[i]==0 || status_[i]==1)
-                status_[i]=1;
-            else
-                status_[i]=0;
-         }
-      }
-      else{
-         #pragma omp parallel for
-         for(int i=0;i<status_.size();i++){
-            if(status_[i]==1 || status_[i]==2)
-                status_[i]=1;
-            else
-                status_[i]=0;
-         }
-      }
-  }
-  else if(domain_xi_1_==IRREGULAR_DOMAIN && domain_xi_2==REGULAR_DOMAIN){
-    #pragma omp parallel for
-    for(int i=0;i<status_.size();i++){
-        if(status_[i]==0 || status_[i]==1)
-            status_[i]=1;
-        else
-            status_[i]=0;
-    }
-  }
-  else
-  {
-      cout<<"J() domain error!"<<endl;
-  }  
-  accumulator_=1;
-}
-
-void HybridMethods::D(int domain_xi_2)
-{
-    if(domain_xi_1_==FULL_DOMAIN && domain_xi_2==REGULAR_DOMAIN){
-        #pragma omp parallel for
-         for(int i=0;i<status_.size();i++){
-            if(status_[i]==3)
-                status_[i]=1;
-            else
-                status_[i]=0;
-         }
-    }
-    else if(domain_xi_1_==FULL_DOMAIN && domain_xi_2==IRREGULAR_DOMAIN){
-        #pragma omp parallel for
-         for(int i=0;i<status_.size();i++){
-            if(status_[i]==1)
-                status_[i]=1;
-            else
-                status_[i]=0;
-         }
-    }
-    else if(domain_xi_1_==REGULAR_DOMAIN && domain_xi_2==REGULAR_DOMAIN){
-        #pragma omp parallel for
-         for(int i=0;i<status_.size();i++){
-            if(status_[i]==2)
-                status_[i]=1;
-            else
-                status_[i]=0;
-         }
-    }
-    else if(domain_xi_1_==REGULAR_DOMAIN && domain_xi_2==IRREGULAR_DOMAIN){
-        #pragma omp parallel for
-         for(int i=0;i<status_.size();i++){
-            if(status_[i]==1 || status_[i]==2)
-                status_[i]=1;
-            else
-                status_[i]=0;
-         }
-    }
-    else if(domain_xi_1_==IRREGULAR_DOMAIN && domain_xi_2==REGULAR_DOMAIN){
-        #pragma omp parallel for
-         for(int i=0;i<status_.size();i++){
-            if(status_[i]==3)
-                status_[i]=1;
-            else
-                status_[i]=0;
-         }
-    }
-    else if(domain_xi_1_==IRREGULAR_DOMAIN && domain_xi_2==IRREGULAR_DOMAIN){
-        #pragma omp parallel for
-         for(int i=0;i<status_.size();i++){
-            if(status_[i]==1)
-                status_[i]=1;
-            else
-                status_[i]=0;
-         }
-    }
-    else
-    {
-        cout<<"D() domain error!"<<endl;
-    }    
-    accumulator_=1;
-}
-
-void HybridMethods::U(int domain_xi_2)
-{
-    if(domain_xi_1_==FULL_DOMAIN && domain_xi_2==REGULAR_DOMAIN){
-        #pragma omp parallel for
-        for(int i=0;i<status_.size();i++){
-            if(status_[i]==1)
-            status_[i]=1;
-            else
-            status_[i]=0;
-        } 
-    }
-    else if(domain_xi_1_==FULL_DOMAIN && domain_xi_2==IRREGULAR_DOMAIN){
-        #pragma omp parallel for
-        for(int i=0;i<status_.size();i++){
-            if(status_[i]==3)
-            status_[i]=1;
-            else
-            status_[i]=0;
-        } 
-    }
-    else
-    {
-        cout<<"U() domain error!"<<endl;
-    }
-    accumulator_=1;
-}
-
