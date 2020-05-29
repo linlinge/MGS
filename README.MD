@@ -7,12 +7,36 @@ This is the source code for the paper "MMOD: A Flexible Module-based Outliers De
 |---- HybridMethods.h,.cpp : It realized the function of modules' definition and hybrid methods generation.  
 ```
 
-## Prerequisities  
+## Prerequisities and Setup    
 * PCL
 * Eigen
 * OpenMP
+```
+// step one
+// step 1-1: download opencv from https://opencv.org/releases/
+// step 1-2: install opencv
+# mkdir build
+# cd build
+# cmake ..
+# make -j8
+# make install
 
-## Setup  
+// step two : install pcl
+# sudo add-apt-repository ppa:v-launchpad-jochen-sprickerhof-de/pcl
+# sudo apt-get update
+# sudo apt-get install libpcl-dev
+
+// step three: install eigen
+# sudo apt-get install libeigen3-dev
+# sudo cp -r /usr/local/include/eigen3 /usr/include 
+```
+
+## Compile  
+```
+# mkdir build
+# cmake ..
+# make -j12
+```
 ## Run
 ## Experiments
 You can find the comparison methods PMR [1], LoOP [2] and PointCleanNet [3] in the reference section.
