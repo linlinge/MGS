@@ -130,3 +130,27 @@ void VecUnique(vector<int>& dat)
     v.erase(unique(v.begin(),v.end()),v.end());
     VecPrint(v);
 }
+
+void VecWrite(string filename,vector<double>& dat)
+{
+    std::ofstream file;
+    if (file.bad())
+        std::cout << "cannot open file" << std::endl;
+    file.open(filename, ios::out | std::ios::app);
+    for(int i=0;i<dat.size()-1;i++)
+        file<<dat[i]<<",";
+    file<<dat[dat.size()-1]<<endl;
+    file.close();
+}
+
+void VecWrite(string filename,vector<float>& dat)
+{
+    std::ofstream file;
+    if (file.bad())
+        std::cout << "cannot open file" << std::endl;
+    file.open(filename, ios::out | std::ios::app);
+    for(int i=0;i<dat.size()-1;i++)
+        file<<dat[i]<<",";
+    file<<dat[dat.size()-1]<<endl;
+    file.close();
+}

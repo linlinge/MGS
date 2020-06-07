@@ -14,10 +14,6 @@ double ComputeMeanDistance(const pcl::PointCloud<PointType>::ConstPtr cloud)
 	#pragma omp parallel for
 	for (size_t i = 0; i < cloud->size(); ++i)
 	{
-		if (!std::isfinite((*cloud)[i].x))
-		{
-			continue;
-		}
 		nres = tree.nearestKSearch(i, 2, indices, sqr_distances);
 		if (nres == 2)
 		{

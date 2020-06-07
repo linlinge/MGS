@@ -1,4 +1,5 @@
 #pragma once
+#include<fstream>
 #include <iostream>
 #include <vector>
 #include <limits.h>
@@ -27,3 +28,6 @@ int VecFindPos(vector<int>& buf,int dat);
 void VecFindPos(vector<int>& buf1,vector<int>& buf2, vector<int>& out);
 void VecPrint(vector<int>& dat);
 void VecUnique(vector<int>& dat);
+/* write */
+void VecWrite(string filename,vector<double>& dat);
+void VecWrite(string filename,vector<float>& dat);

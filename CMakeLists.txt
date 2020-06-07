@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-project(COR)
+project(MGS)
 # set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_BUILD_TYPE "Release")
 # set(Env{PATH} "/home/llg/anaconda3/pkgs/python-3.7.4-h265db76_1/lib/")
@@ -38,7 +38,7 @@ include_directories("/usr/include/eigen3")
 include_directories(glib .)
 ADD_SUBDIRECTORY(glib)
 aux_source_directory(. MAIN_SRC)
-add_executable (COR main.cpp 
+add_executable (MGS main.cpp 
                     OLEModule.h
                     OLEModule.cpp
                     HybridMethods.h
@@ -46,10 +46,10 @@ add_executable (COR main.cpp
 
 
 ###########################################  link library ###############################################
-target_link_libraries(COR GLIB)
+target_link_libraries(MGS GLIB)
 
 # PCL
-target_link_libraries (COR ${PCL_LIBRARIES})
+target_link_libraries (MGS ${PCL_LIBRARIES})
 
 # OpenCV
 # target_link_libraries(COR ${OpenCV_LIBS})
