@@ -5,7 +5,7 @@
 */
 #pragma once
 #include "Table.h"
-#include "OLEModule.h"
+#include "StyleEvaluation.h"
 #include "SignalProcessing.h"
 #include "VectorExtend.h"
 #include "StringExtend.h"
@@ -18,7 +18,7 @@
 #define STATUS      0xFF
 extern pcl::PointCloud<PointType>::Ptr cloud_;
 extern pcl::search::KdTree<PointType>::Ptr kdtree_;
-extern OLEModule* pOle_;
+extern StyleEvaluation* pOle_;
 extern vector<int> status_;
 extern int accumulator;
 extern int is_show_progress;
@@ -31,16 +31,17 @@ class HybridMethods
         Table<Rrd1> rst_db2_;
         Table<Rrd1> rst_density_;
         Table<Rrd1> rst_nid_;
+        Table<Rrd1> rst_gradient_;
         pcl::PointCloud<PointType>::Ptr cloud_;
         pcl::search::KdTree<PointType>::Ptr kdtree_;
-        OLEModule* pOle_;
+        StyleEvaluation* pOle_;
         int N_;
         int accumulator_;
         double startTime_,endTime_;
         string store_path_;
 
         /* Construction */
-        HybridMethods(pcl::PointCloud<PointType>::Ptr cloud,pcl::search::KdTree<PointType>::Ptr kdtree,OLEModule* pOle,string store_path="Result"){
+        HybridMethods(pcl::PointCloud<PointType>::Ptr cloud,pcl::search::KdTree<PointType>::Ptr kdtree,StyleEvaluation* pOle,string store_path="Result"){
             cloud_=cloud;
             kdtree_=kdtree;
             pOle_=pOle;
@@ -55,13 +56,14 @@ class HybridMethods
         }
 
         /* Function Modules*/
-        void FM_Prox(int K, double kIQR,string domain="0");          // Outliers detection based on proximity
+        void FM_Slope(int K, double kIQR,string domain="0");      // Outliers detection based on proximity
+        void FM_Gradient(int K, double kIQR,string domain="0");      // Outliers Removal via Gradient
         void FM_MEval(int K, double kIQR,string domain="0");      // IRPC: Irregular and Regular Points Classfication based on Minor Eigenvalue
         void FM_NID(int K, double kIQR, string domain="0");
         void FM_D4(int K,double P,string domain="0");
         void FM_Density(int K, double alpha,string domain="0");
         void FM_RegionGrowth(double thresh_eclidean, double thresh_tolerance,double thresh_kIQR, string domain="0");
-        void FM_MajorityVote(int K,string domain="0");
+        void FM_MajorityVote(int K,double thresh=0.01,string domain="0");
 
         /* Combination Operator */
         vector<int> status_;

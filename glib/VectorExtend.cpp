@@ -8,6 +8,16 @@ double VectorMean(vector<double>& dat)
     return rst/dat.size();
 }
 
+void VectorNormalize(vector<double>& dat)
+{
+    double dat_min=VectorMinimum(dat);
+    double dat_max=VectorMaximum(dat);
+    #pragma omp parrallel for
+    for(int i=0;i<dat.size();i++){
+        dat[i]=(dat[i]-dat_min)/(dat_max-dat_min);
+    }    
+}
+
 double VectorMinimum(vector<double>& dat)
 {
     auto vmin=std::min_element(dat.begin(),dat.end());
@@ -131,26 +141,41 @@ void VecUnique(vector<int>& dat)
     VecPrint(v);
 }
 
-void VecWrite(string filename,vector<double>& dat)
+void VectorWrite(string filename,vector<double>& dat,string mode)
 {
     std::ofstream file;
     if (file.bad())
         std::cout << "cannot open file" << std::endl;
-    file.open(filename, ios::out | std::ios::app);
+    if(mode=="append")
+        file.open(filename, ios::out | std::ios::app);
+    else if(mode=="cover")
+        file.open(filename, ios::out);
+    else
+    {
+        cout<<"VectorWrite mode error!"<<endl;
+    }
+    
     for(int i=0;i<dat.size()-1;i++)
-        file<<dat[i]<<",";
+        file<<dat[i]<<","<<endl;
     file<<dat[dat.size()-1]<<endl;
     file.close();
 }
 
-void VecWrite(string filename,vector<float>& dat)
+void VectorWrite(string filename,vector<float>& dat,string mode)
 {
     std::ofstream file;
     if (file.bad())
         std::cout << "cannot open file" << std::endl;
-    file.open(filename, ios::out | std::ios::app);
+    if(mode=="append")
+        file.open(filename, ios::out | std::ios::app);
+    else if(mode=="cover")
+        file.open(filename, ios::out);
+    else
+    {
+        cout<<"VectorWrite mode error!"<<endl;
+    }
     for(int i=0;i<dat.size()-1;i++)
-        file<<dat[i]<<",";
+        file<<dat[i]<<","<<endl;
     file<<dat[dat.size()-1]<<endl;
     file.close();
 }

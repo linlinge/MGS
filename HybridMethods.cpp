@@ -28,7 +28,7 @@ void HybridMethods::GetScopeIndices(string str,vector<int>& cIdx)
 }
 
 
-void HybridMethods::FM_Prox(int K, double kIQR,string domain)
+void HybridMethods::FM_Slope(int K, double kIQR,string domain)
 {
     pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
     pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
@@ -90,6 +90,72 @@ void HybridMethods::FM_Prox(int K, double kIQR,string domain)
         #pragma omp parallel for
         for(int i=0;i<scope.size();i++){
             if(rst_slope_.records_[i].item1_>thresh)
+                status_[scope[i]]=-accumulator_;            
+            else
+                status_[scope[i]]=accumulator_;
+        }
+    }
+    
+    accumulator_++;
+}
+
+void HybridMethods::FM_Gradient(int K, double kIQR,string domain)
+{
+    pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
+    pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
+    if(is_show_progress)
+        cout<<"Gradient start!"<<endl; 
+
+    vector<int> scope;
+    GetScopeIndices(domain,scope);
+
+    rst_gradient_.Clear();
+    rst_gradient_.Resize(scope.size());
+    pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
+    pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
+    for(int i=0;i<scope.size();i++)
+        cloud_tmp->points.push_back(cloud_->points[scope[i]]);
+    kdtree_tmp->setInputCloud(cloud_tmp);
+
+    Eigen::MatrixXd xtmp(K,1);
+    for(int i=0;i<K;i++) xtmp(i,0)=i;
+    // calculate y
+    #pragma omp parallel for
+    for(int i=0;i<scope.size();i++){
+        vector<int> idx(K);
+        vector<float> dist(K);
+        Eigen::MatrixXd ytmp(K,1);
+        int itmp=scope[i];
+        kdtree_tmp->nearestKSearch(cloud_->points[itmp], K, idx, dist);
+
+        for(int j=0;j<dist.size();j++) ytmp(j,0)=dist[j];
+        Eigen::MatrixXd atmp=(xtmp.transpose()*xtmp).inverse()*xtmp.transpose()*ytmp;
+        rst_gradient_.records_[i].id_=itmp;
+        rst_gradient_.records_[i].item1_=atmp(0,0)*(K/dist[K-1]);
+        // rst_gradient_.records_[i].item1_=tan(atmp(0,0));
+    }
+
+    double IQR=rst_gradient_.GetQuantile(0.75)-rst_gradient_.GetQuantile(0.25);
+    double thresh=rst_gradient_.GetQuantile(0.75)+IQR*kIQR;
+    if(is_show_progress==1){       
+        for(int i=0;i<scope.size();i++){
+            if(rst_gradient_.records_[i].item1_>thresh){
+                status_[scope[i]]=-accumulator_; 
+                rst1->points.push_back(cloud_->points[scope[i]]);
+            }
+            else{
+                status_[scope[i]]=accumulator_; 
+                rst0->points.push_back(cloud_->points[scope[i]]);
+            }
+        }
+        pcl::io::savePLYFileBinary(store_path_+"rst("+to_string(accumulator_)+").ply",*rst0);
+        pcl::io::savePLYFileBinary(store_path_+"rst("+to_string(accumulator_)+"-).ply",*rst1);
+        cout<<"Gradient end!"<<endl;
+    }
+    else{
+        #pragma omp parallel for
+        for(int i=0;i<scope.size();i++){
+            if(rst_gradient_.records_[i].item1_>thresh)
                 status_[scope[i]]=-accumulator_;            
             else
                 status_[scope[i]]=accumulator_;
@@ -252,8 +318,8 @@ void HybridMethods::FM_D4(int K, double P,string domain)
         vector<double> db;
         DaubechiesWavelet(dist,db);
         if(i<200){
-            VecWrite("Result/Distance.txt",dist);
-            VecWrite("Result/d4.txt",db);
+            VectorWrite("Result/Distance.txt",dist);
+            VectorWrite("Result/d4.txt",db);
         }
         
         db.pop_back();
@@ -421,7 +487,7 @@ void HybridMethods::FM_RegionGrowth(double thresh_eclidean, double thresh_tolera
     accumulator_++;
 }
 
-void HybridMethods::FM_MajorityVote(int K,string domain)
+void HybridMethods::FM_MajorityVote(int K,double thresh, string domain)
 {
     if(is_show_progress==1){
         cout<<"MajorityVote start!"<<endl;
@@ -456,7 +522,7 @@ void HybridMethods::FM_MajorityVote(int K,string domain)
     // double IQR=rst_mv_.GetQuantile(0.75)-rst_mv_.GetQuantile(0.25);
     // double thresh=rst_mv_.GetQuantile(0.75)+IQR*1.5;
     // double thresh=(rst_mv_.GetMaximum()-rst_mv_.GetMinimum())*0.25+rst_mv_.GetMinimum();
-    double thresh=0.01;   
+    // double thresh=0.01;   
     if(is_show_progress==1){
         for(int i=0;i<scope.size();i++){
             if(rst_mv_.records_[i].item1_<thresh){
@@ -502,9 +568,9 @@ void HybridMethods::DemonstrateResult(string path)
                 rst_irregular_cloud->points.push_back(cloud_->points[i]);
             }
         }
-        pcl::io::savePLYFileBinary(path,*rst_regular_cloud);
+        pcl::io::savePLYFileBinary(path+"_regular.ply",*rst_regular_cloud);
         // pcl::io::savePLYFileBinary(path+"_regular_cloud.ply",*rst_regular_cloud);
-        pcl::io::savePLYFileBinary("/home/llg/dataset/MM/irregular.ply",*rst_irregular_cloud);
+        pcl::io::savePLYFileBinary(path+"_irregular.ply",*rst_irregular_cloud);
     }
     else
         cout<<"Status Error!"<<endl;

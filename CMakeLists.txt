@@ -39,8 +39,8 @@ include_directories(glib .)
 ADD_SUBDIRECTORY(glib)
 aux_source_directory(. MAIN_SRC)
 add_executable (MGS main.cpp 
-                    OLEModule.h
-                    OLEModule.cpp
+                    StyleEvaluation.h
+                    StyleEvaluation.cpp
                     HybridMethods.h
                     HybridMethods.cpp)
 

@@ -14,6 +14,7 @@ double VectorSum(vector<double>& dat);
 void VectorDelete(vector<int>&rdat,int index);
 void VectorDelete(vector<int>&raw_dat, vector<int>& delete_dat);
 int VectorIQR(vector<double>& dat);
+void VectorNormalize(vector<double>& dat);
 
 /*
     Logical Operation
@@ -29,5 +30,5 @@ void VecFindPos(vector<int>& buf1,vector<int>& buf2, vector<int>& out);
 void VecPrint(vector<int>& dat);
 void VecUnique(vector<int>& dat);
 /* write */
-void VecWrite(string filename,vector<double>& dat);
-void VecWrite(string filename,vector<float>& dat);
+void VectorWrite(string filename,vector<double>& dat,string mode="append");
+void VectorWrite(string filename,vector<float>& dat,string mode="append");

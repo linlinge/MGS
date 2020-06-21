@@ -126,6 +126,58 @@ void GetEvalAndEvec(pcl::PointCloud<PointType>::Ptr cloud,int k,
 	evec[2].x=eig_vec(0,2);evec[2].y=eig_vec(1,2);evec[2].z=eig_vec(2,2);
 }
 
+
+V3 GetMEvec(pcl::PointCloud<PointType>::Ptr local_cloud)
+{
+	V3 mevec;
+	// Calculate Evec and Eval
+	Eigen::Vector4f centroid;
+	Eigen::Matrix3f covariance;
+	pcl::compute3DCentroid(*local_cloud, centroid);
+	pcl::computeCovarianceMatrixNormalized(*local_cloud, centroid, covariance);
+	Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> eigen_solver(covariance, Eigen::ComputeEigenvectors);
+	Eigen::Matrix3f eig_vec = eigen_solver.eigenvectors();
+	Eigen::Vector3f eig_val = eigen_solver.eigenvalues();
+	// eigenvector
+	eig_vec.col(2) = eig_vec.col(0).cross(eig_vec.col(1));
+	eig_vec.col(0) = eig_vec.col(1).cross(eig_vec.col(2));
+	eig_vec.col(1) = eig_vec.col(2).cross(eig_vec.col(0));
+	mevec.x=eig_vec(0,0); mevec.y=eig_vec(1,0); mevec.z=eig_vec(2,0);
+	return mevec;
+}
+
+double GetMEval(pcl::PointCloud<PointType>::Ptr local_cloud)
+{
+	V3 mevec;
+	// Calculate Evec and Eval
+	Eigen::Vector4f centroid;
+	Eigen::Matrix3f covariance;
+	pcl::compute3DCentroid(*local_cloud, centroid);
+	pcl::computeCovarianceMatrixNormalized(*local_cloud, centroid, covariance);
+	Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> eigen_solver(covariance, Eigen::ComputeEigenvectors);	
+	Eigen::Vector3f eig_val = eigen_solver.eigenvalues();
+	return eig_val(0);
+}
+
+void GetLocalCloud(pcl::PointCloud<PointType>::Ptr whole_cloud, 
+				   pcl::search::KdTree<PointType>::Ptr kdtree,
+				   int index, int K, 
+				   pcl::PointCloud<PointType>::Ptr local_cloud)
+{
+	vector<int> idx(K);
+	vector<float> dist(K);
+	local_cloud=pcl::PointCloud<PointType>::Ptr(new pcl::PointCloud<PointType>);
+	pcl::PointCloud<PointType>::Ptr ctmp(new pcl::PointCloud<PointType>);
+	ctmp->resize(K);
+	kdtree->nearestKSearch (index, K, idx, dist);        
+	// #pragma omp parallel for
+	for(int i=0;i<idx.size();i++){		
+		ctmp->points[i]=whole_cloud->points[idx[i]];
+	}        
+}
+
+
+
 void GetEval(pcl::PointCloud<PointType>::Ptr cloud,int k,
 			 pcl::search::KdTree<PointType>::Ptr kdtree,int index,vector<int>& eval)
 {

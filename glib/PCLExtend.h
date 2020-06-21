@@ -43,7 +43,7 @@ int GetIndex(pcl::search::KdTree<PointType>::Ptr kdtree,PointType ptmp);
 double GetMEvalKDistance(pcl::PointCloud<PointType>::Ptr cloud,int k,
 		pcl::search::KdTree<PointType>::Ptr kdtree,int index);
 double GetMEvalRadius(pcl::PointCloud<PointType>::Ptr cloud,double radius,
-		      pcl::search::KdTree<PointType>::Ptr kdtree,int index);
+		      		  pcl::search::KdTree<PointType>::Ptr kdtree,int index);
 double GetMEvalKNeighours(pcl::PointCloud<PointType>::Ptr cloud,int k,
 		pcl::search::KdTree<PointType>::Ptr kdtree,int index);
 void GetEvalAndEvec(pcl::PointCloud<PointType>::Ptr cloud,int k,
@@ -52,6 +52,15 @@ void GetEvalAndEvec(pcl::PointCloud<PointType>::Ptr cloud,int k,
 void GetEvalAndEvec(pcl::PointCloud<PointType>::Ptr ctmp,vector<double>& eval,vector<V3>& evec);
 void GetEval(pcl::PointCloud<PointType>::Ptr cloud,int k,
 	     pcl::search::KdTree<PointType>::Ptr kdtree,int index);
+double GetMEval(pcl::PointCloud<PointType>::Ptr local_cloud);
 
+/* Get minor eigenvector*/	
+V3 GetMEvec(pcl::PointCloud<PointType>::Ptr local_cloud);
+
+/* Get local cloud */
+void GetLocalCloud(pcl::PointCloud<PointType>::Ptr whole_cloud, 
+				   pcl::search::KdTree<PointType>::Ptr kdtree,
+				   int index, int K, 
+				   pcl::PointCloud<PointType>::Ptr local_cloud);
 double GetCounterAmongRadius(pcl::PointCloud<PointType>::Ptr cloud,double radius,
 			     pcl::search::KdTree<PointType>::Ptr kdtree,int index);
