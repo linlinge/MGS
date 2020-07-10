@@ -72,18 +72,36 @@ int main(int argc,char** argv)
 	/* Hybrid Methods Generation */	
 	StyleEvaluation ole(cloud,kdtree);
 	HybridMethods hrd01(cloud,kdtree,&ole);	
-	if("OGEM"==Mtype){
-		ole.OutlierGradeMetric(output_path);
+	if("OutlierGrade"==Mtype){		
+		ole.OutlierGrade(output_path,50);
 	}
-	else if("UEM"==Mtype){
-		ole.UniformityMetric(output_path);
+	else if("meval"==Mtype){
+		hrd01.FM_MEval(50,3.0);
+		hrd01.DemonstrateResult_Color("Result/color.ply",hrd01.rst_meval_,"nonlinear");
 	}
-	else if("SEM"==Mtype){
-		ole.SigularityMetric(output_path,100);
+	else if("Homogeneity"==Mtype){		
+		ole.Homogeneity(output_path);
 	}
-	else if("ORvBS"==Mtype){
+	else if("Singularity"==Mtype){
+		ole.Sigularity(output_path,60,2000);
+	}
+	else if("OR-BG"==Mtype){
+		/* Homework ply */
 		hrd01.FM_Slope(150,5);
-		hrd01.rst_slope_.Write(output_path);
+		// hrd01.rst_db2_.Normalize_Min_Max();
+		// hrd01.rst_db2_.Normalize_Tanh();
+		hrd01.DemonstrateResult_Color("Result/color.ply",hrd01.rst_slope_);
+		// hrd01.DemonstrateResult_Color("Result/color.ply",hrd01.rst_slope_,"nonlinear");
+	}
+	else if("OR-D4"==Mtype){
+		/* Homework ply */
+		hrd01.FM_D4(3,1);
+		// hrd01.FM_D4(30,1);
+		// hrd01.FM_D4(30,10);
+		// hrd01.FM_D4(70,3); /* S */		
+		// hrd01.FM_D4(200,3);
+		// hrd01.FM_D4(40,3);
+		hrd01.DemonstrateResult_Color("Result/color.ply",hrd01.rst_db2_);
 	}
 	else if("BSC1_1"==Mtype){
 		// HybridMethods hrd01(cloud,kdtree,&ole);
@@ -95,30 +113,64 @@ int main(int argc,char** argv)
 		// HybridMethods hrd01(cloud,kdtree,&ole);
 		hrd01.FM_D4(500,5,"1,2");
 		hrd01.FM_RegionGrowth(1.5,80.0,200.0,"-1");
-		hrd01.DemonstrateResult("Result/M1_2",hrd01.rst_slope_);
+		hrd01.DemonstrateResult_Color("Result/M1_2",hrd01.rst_slope_);
 	}
 	else if("BSC1_3"==Mtype){
 		// HybridMethods hrd01(cloud,kdtree,&ole);
 		hrd01.FM_MEval(400,1.5);
 		hrd01.FM_MajorityVote(4000,0.01,"-1");
-		hrd01.DemonstrateResult("Result/M1_3",hrd01.rst_meval_);
-	}
-	else if("ORvG"==Mtype){
-		hrd01.FM_Gradient(150,5);
-		// hrd01.rst_gradient_.Write(output_path);
-		hrd01.DemonstrateResult(output_path,hrd01.rst_gradient_);
+		hrd01.DemonstrateResult_Color("Result/M1_3",hrd01.rst_meval_);
 	}
 	else if("MGS1"==Mtype){
+		hrd01.FM_D4(100,4);
+		hrd01.FM_LoOP();
+		hrd01.DemonstrateResult(output_path);
+	}
+	else if("MGS2"==Mtype){
+		// hrd01.FM_Slope(200,3);
+		// hrd01.FM_NID(100,2);
+		
+		hrd01.FM_MEval(80,30);
+		hrd01.FM_LoOP("1");
+		// hrd01.FM_RegionGrowth(0.1,20.0,3.0,"-1");
+		hrd01.DemonstrateResult(output_path);
+	}
+	// else if("MGS2"==Mtype){
+	// 	// hrd01.FM_Slope(60,10);
+	// 	hrd01.FM_D4(70,10);
+	// 	hrd01.rst_db2_.Normalize_Min_Max();
+	// 	hrd01.FM_Density(80,1);
+	// 	hrd01.rst_density_.Normalize_Min_Max();
+	// 	Table<Rrd1> rst_tmp;
+	// 	rst_tmp.Resize(cloud->points.size());
+	// 	for(int i=0;i<cloud->points.size();i++){
+	// 		rst_tmp.records_[i].item1_=hrd01.rst_db2_.records_[i].item1_*hrd01.rst_density_.records_[i].item1_;
+	// 		// rst_tmp.records_[i].item1_=hrd01.rst_density_.records_[i].item1_;
+	// 		// return 0;
+	// 	}
+	// 	double IQR=rst_tmp.GetQuantile(0.75)-rst_tmp.GetQuantile(0.25);
+    // 	double thresh=rst_tmp.GetQuantile(0.75)+IQR*1;
+	// 	for(int i=0;i<rst_tmp.records_.size();i++){
+	// 		if(rst_tmp.records_[i].item1_>thresh){
+	// 			hrd01.status_[i]=-1;
+	// 		}
+	// 		else{
+	// 			hrd01.status_[i]=1;
+	// 		}
+	// 	}
+	// 	// hrd01.DemonstrateResult_Color("Result/Ignatius_color.ply",rst_tmp,"linear");
+	// 	hrd01.DemonstrateResult("Result/Ignatius_MGS2.ply");
+	// }	
+	else if("MGS3"==Mtype){
+		// cout<<"MGS3"<<endl;
 		/* Tanks and Temples */
-		// HybridMethods hrd01(cloud,kdtree,&ole);
 		// hrd01.store_path_=output_path;
 		// hrd01.FM_Slope(150,5);
 		// hrd01.FM_RegionGrowth(1.5,80.0,200.0,"-1");
-		// hrd01.FM_NID(100,0.8,"1,2");
+		// hrd01.FM_NID(100,0.8,"1,2");	
 		// hrd01.DemonstrateResult(output_path);
 
 		/* DTU scan*/
-		// HybridMethods hrd01(cloud,kdtree,&ole);
 		// hrd01.store_path_=output_path;
 		// hrd01.FM_Slope(800,3);
 		// hrd01.FM_RegionGrowth(1.5,80.0,200.0,"-1");
@@ -126,46 +178,42 @@ int main(int argc,char** argv)
 		// hrd01.DemonstrateResult(output_path);
 
 
-		/* DTU furu*/
-		// HybridMethods hrd01(cloud,kdtree,&ole);
+		/* DTU furu*/		
 		// hrd01.store_path_=output_path;
 		// hrd01.FM_Slope(150,3);
 		// hrd01.FM_RegionGrowth(1.5,80.0,200.0,"-1");
 		// hrd01.FM_NID(100,0.8,"1,2");
 		// hrd01.DemonstrateResult(output_path);
 
-		/* THU */
-		// HybridMethods hrd01(cloud,kdtree,&ole);
+		/* THU */		
 		// hrd01.store_path_=output_path;
 		// hrd01.FM_Slope(150,3);
 		// hrd01.FM_RegionGrowth(1.5,80.0,200.0,"-1");
 		// hrd01.FM_NID(100,0.999,"1,2");
 		// hrd01.DemonstrateResult(output_path);
 
-		/* Human (OPENMVS)*/
-		// HybridMethods hrd01(cloud,kdtree,&ole,output_path);
+		/* Human (OPENMVS)*/		
 		// hrd01.FM_Slope(400,6);
 		// hrd01.FM_RegionGrowth(2,80.0,4000.0,"-1");
 		// hrd01.FM_NID(100,0.7,"1,2");
 		// hrd01.DemonstrateResult(fileNoType+"_MGS1");
 
-		/* Human (COLMAP)*/
-		// HybridMethods hrd01(cloud,kdtree,&ole,output_path);
+		/* Human (COLMAP)*/		
 		// hrd01.FM_Slope(400,7);
 		hrd01.FM_Slope(400,6);
-		hrd01.FM_RegionGrowth(2,80.0,4000.0,"-1");
-		// hrd01.FM_NID(100,0.9,"1,2");
-		hrd01.DemonstrateResult(fileNoType+"_MGS1");
+		// hrd01.FM_RegionGrowth(2,80.0,4000.0,"-1");		
+		// // hrd01.FM_NID(100,0.9,"1,2");
+		hrd01.FM_LoOP("1");
+		hrd01.DemonstrateResult(output_path);
 	}
-	else if("MGS2"==Mtype){
-		/* THU */
-		// HybridMethods hrd01(cloud,kdtree,&ole); 
-		// hrd01.FM_MEval(400,1.5);
-		// hrd01.FM_MajorityVote(4000,"-1");
-		// hrd01.FM_D4(500,30,"1,2");
-		// hrd01.FM_RegionGrowth(2.0,80.0,200.0,"-3");
-		// hrd01.FM_NID(30,0.999,"1,2,3,4");
-		// hrd01.DemonstrateResult("Result/MGS3");
+	else if("MGS4"==Mtype){
+		/* THU */		
+		hrd01.FM_MEval(400,1.5);
+		hrd01.FM_MajorityVote(4000,0.01,"-1");
+		hrd01.FM_D4(500,30,"1,2");
+		hrd01.FM_RegionGrowth(2.0,80.0,200.0,"-3");
+		hrd01.FM_LoOP("1,2,3,4");
+		hrd01.DemonstrateResult(output_path);
 
 		/* Tanks and Temples*/
 		// HybridMethods hrd01(cloud,kdtree,&ole); 
@@ -187,15 +235,18 @@ int main(int argc,char** argv)
 
 		/* Human (COLMAP)*/
 		// HybridMethods hrd01(cloud,kdtree,&ole); 
-		hrd01.FM_MEval(200,4);
-		hrd01.FM_MajorityVote(400,0.002,"1");
-		hrd01.FM_D4(100,40,"1,2");
-		hrd01.FM_RegionGrowth(2.0,80.0,200.0,"-3");
-		// hrd01.FM_NID(30,0.6,"1,2,3");
-		hrd01.DemonstrateResult(fileNoType+"_MGS2");
+		// hrd01.FM_MEval(150,20);
+		// hrd01.FM_MajorityVote(400,0.002,"1");
+		// hrd01.FM_D4(100,40,"1,2");
+		// hrd01.FM_RegionGrowth(2.0,80.0,200.0,"-3");
+		// hrd01.FM_LoOP("1,2,3,4");
+		// hrd01.DemonstrateResult(output_path);
 	}
-	// cout<<endl<<endl;
-	return 0; 
+	else if("nohair"==Mtype){
+		hrd01.FM_MEval(250,6);
+		hrd01.DemonstrateResult(output_path);
+	}
+	return 0;
 }
 
 

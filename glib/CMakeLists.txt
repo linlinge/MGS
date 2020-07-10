@@ -1,6 +1,7 @@
 # aux_source_directory(. GLIB_SRC)
 # ADD_LIBRARY(GLIB ${GLIB_SRC})
-ADD_LIBRARY(GLIB BasicGeometry.cpp 
+ADD_LIBRARY(GLIB BasicGeometry.h 
+                 BasicGeometry.cpp 
                  CloudCompare.hpp 
                  FileExtend.cpp 
                  Point.hpp 

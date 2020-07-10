@@ -28,6 +28,11 @@ double VectorMaximum(vector<double>& dat)
     auto vmax=std::max_element(dat.begin(),dat.end());
     return *vmax;
 }
+double VectorMaximum(vector<float>& dat)
+{
+    auto vmax=std::max_element(dat.begin(),dat.end());
+    return *vmax;
+}
 double VectorStd(vector<double>& dat)
 {
     double rst=0;
@@ -146,18 +151,34 @@ void VectorWrite(string filename,vector<double>& dat,string mode)
     std::ofstream file;
     if (file.bad())
         std::cout << "cannot open file" << std::endl;
-    if(mode=="append")
+    if(mode=="append,row"){
         file.open(filename, ios::out | std::ios::app);
-    else if(mode=="cover")
+        for(int i=0;i<dat.size()-1;i++)
+            file<<dat[i]<<",";
+        file<<dat[dat.size()-1]<<endl;
+    }
+    else if(mode=="append,column"){
+        file.open(filename, ios::out | std::ios::app);
+        for(int i=0;i<dat.size()-1;i++)
+            file<<dat[i]<<","<<endl;
+        file<<dat[dat.size()-1]<<endl;
+    }          
+    else if(mode=="cover,row"){
         file.open(filename, ios::out);
+        for(int i=0;i<dat.size()-1;i++)
+            file<<dat[i]<<",";
+        file<<dat[dat.size()-1]<<endl;
+    }
+    else if(mode=="cover,column"){
+        file.open(filename, ios::out);
+        for(int i=0;i<dat.size()-1;i++)
+            file<<dat[i]<<","<<endl;
+        file<<dat[dat.size()-1]<<endl;
+    }
     else
     {
         cout<<"VectorWrite mode error!"<<endl;
     }
-    
-    for(int i=0;i<dat.size()-1;i++)
-        file<<dat[i]<<","<<endl;
-    file<<dat[dat.size()-1]<<endl;
     file.close();
 }
 
@@ -166,16 +187,58 @@ void VectorWrite(string filename,vector<float>& dat,string mode)
     std::ofstream file;
     if (file.bad())
         std::cout << "cannot open file" << std::endl;
-    if(mode=="append")
+    if(mode=="append,row"){
         file.open(filename, ios::out | std::ios::app);
-    else if(mode=="cover")
+        for(int i=0;i<dat.size()-1;i++)
+            file<<dat[i]<<",";
+        file<<dat[dat.size()-1]<<endl;
+    }
+    else if(mode=="append,column"){
+        file.open(filename, ios::out | std::ios::app);
+        for(int i=0;i<dat.size()-1;i++)
+            file<<dat[i]<<","<<endl;
+        file<<dat[dat.size()-1]<<endl;
+    }          
+    else if(mode=="cover,row"){
         file.open(filename, ios::out);
+        for(int i=0;i<dat.size()-1;i++)
+            file<<dat[i]<<",";
+        file<<dat[dat.size()-1]<<endl;
+    }
+    else if(mode=="cover,column"){
+        for(int i=0;i<dat.size()-1;i++)
+            file<<dat[i]<<","<<endl;
+        file<<dat[dat.size()-1]<<endl;
+    }
     else
     {
         cout<<"VectorWrite mode error!"<<endl;
     }
-    for(int i=0;i<dat.size()-1;i++)
-        file<<dat[i]<<","<<endl;
-    file<<dat[dat.size()-1]<<endl;
     file.close();
+}
+
+void VectorInterval(vector<double>& dat,vector<double>& out)
+{
+    out.resize(dat.size()-1);
+    for(int i=1;i<dat.size();i++){
+        out[i]=dat[i]-dat[i-1];
+    }
+}
+
+void VectorInterval(vector<float>& dat,vector<double>& out)
+{
+    out.resize(dat.size());
+    out[0]=0;
+    for(int i=1;i<dat.size();i++){
+        out[i]=dat[i]-dat[i-1];
+    }
+}
+int VectorFindFirstNot(vector<int>& dictionary, vector<int>& dat)
+{
+    for(int i=0;i<dat.size();i++){
+        vector<int>::iterator it=find(dictionary.begin(),dictionary.end(),dat[i]);        
+        if(it==dictionary.end())
+            return dat[i];
+    }
+    return -1;
 }

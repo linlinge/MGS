@@ -1,4 +1,4 @@
-# MGS: Methods Generation Scheme
+# SGODF: Style-guided outlier detection framework
 This is the source code for the paper "MGS: A Flexible Methods Generation Scheme for Point Cloud Outliers Detection". The file structure description for this project is presented in the following.  
 ```
 |---- main.cpp : It contains the entry of the main function, and you can choose different patterns in this file.  

@@ -7,7 +7,8 @@
 #include "Table.h"
 #include "PCLExtend.h"
 #include <stdlib.h>
-#include<time.h>
+#include <time.h>
+#include <numeric>
 class StyleEvaluation
 {
     public:
@@ -16,15 +17,17 @@ class StyleEvaluation
 		Table<Rrd1> rst_dmean;
 		Table<Rrd1> rst_meval;
 		Table<Rrd1> rst_db2;
+		Table<Rrd1> rst_singularity;
 		double dnst_,dmean_,meval_,db2_;
+		double dmin_;
 		double db2_Q3_,db2_IQR_;
 		double meval_Q3_,meval_IQR_;
 		double og_;
 		int n_,N_;
 		/* Style Evaluation Metrics */
-		void OutlierGradeMetric(string path, int K=30);
-		void UniformityMetric(string path, int K=30);
-		void SigularityMetric(string path, int K=30);
+		void OutlierGrade(string path, int K=30);
+		void Homogeneity(string path, int K=30);
+		void Sigularity(string path, int K1, int K2);
 
         double ApplyEigenvalue(int K=32);
 		double GetMinorEval(int K=32, string str="Common");

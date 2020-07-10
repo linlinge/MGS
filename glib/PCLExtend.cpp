@@ -6,18 +6,18 @@ double ComputeMeanDistance(const pcl::PointCloud<PointType>::ConstPtr cloud)
 	double res = 0.0;
 	int n_points = 0;
 	int nres;
-	std::vector<int> indices(2);
-	std::vector<float> sqr_distances(2);
+	std::vector<int> idx(2);
+	std::vector<float> dist(2);
 	pcl::search::KdTree<PointType> tree;
 	tree.setInputCloud(cloud);
 
 	#pragma omp parallel for
 	for (size_t i = 0; i < cloud->size(); ++i)
 	{
-		nres = tree.nearestKSearch(i, 2, indices, sqr_distances);
+		nres = tree.nearestKSearch(i, 2, idx, dist);
 		if (nres == 2)
 		{
-			res += sqrt(sqr_distances[1]);
+			res += sqrt(dist[1]);
 			++n_points;
 		}
 	}
@@ -29,12 +29,14 @@ double ComputeMeanDistance(const pcl::PointCloud<PointType>::ConstPtr cloud)
 }
 
 
+
+
 double ComputeMaxDistance(const pcl::PointCloud<PointType>::ConstPtr cloud)
 {
 	double rst = 0.0;
 	int nres;
-	std::vector<int> indices(2);
-	std::vector<float> sqr_distances(2);
+	std::vector<int> idx(2);
+	std::vector<float> dist(2);
 	pcl::search::KdTree<PointType> tree;
 	tree.setInputCloud(cloud);
 
@@ -44,11 +46,35 @@ double ComputeMaxDistance(const pcl::PointCloud<PointType>::ConstPtr cloud)
 		{
 			continue;
 		}
-		nres = tree.nearestKSearch(i, 2, indices, sqr_distances);
+		nres = tree.nearestKSearch(i, 2, idx, dist);
 		if (nres == 2)
+		{			
+			rst = rst>dist[1] ? rst:dist[1];
+		}
+	}
+
+	return rst;
+}
+
+double ComputeMinDistance(const pcl::PointCloud<PointType>::ConstPtr cloud)
+{
+	double rst = INT_MAX;
+	int nres;
+	std::vector<int> idx(2);
+	std::vector<float> dist(2);
+	pcl::search::KdTree<PointType> tree;
+	tree.setInputCloud(cloud);
+
+	for (size_t i = 0; i < cloud->size(); ++i)
+	{
+		if (!std::isfinite((*cloud)[i].x))
 		{
-			double dist_tmp=sqrt(sqr_distances[1]);
-			rst = rst>dist_tmp ? rst:dist_tmp;
+			continue;
+		}
+		nres = tree.nearestKSearch(i, 2, idx, dist);
+		if (nres == 2)
+		{			
+			rst = rst<dist[1] ? rst:dist[1];
 		}
 	}
 
@@ -383,17 +409,18 @@ double ComputeNearestDistance(pcl::search::KdTree<PointType>::Ptr kdtree,int ind
 	return dist[1];
 }
 
-double ComputeDB2(pcl::search::KdTree<PointType>::Ptr kdtree,int K,int index)
-{
-	vector<int> idx(K);
-	vector<float> dist(K);
-	kdtree->nearestKSearch(index, K, idx, dist);
-	vector<double> db;
-	DaubechiesWavelet(dist,db);
-	db.pop_back();
-	double db2_max=VectorMaximum(db);
-	return db2_max;
-}
+
+// double ComputeDB2(pcl::search::KdTree<PointType>::Ptr kdtree,int K,int index)
+// {
+// 	vector<int> idx(K);
+// 	vector<float> dist(K);
+// 	kdtree->nearestKSearch(index, K, idx, dist);
+// 	vector<double> db;
+// 	DaubechiesWavelet(dist,db);
+// 	db.pop_back();
+// 	double db2_max=VectorMaximum(db);
+// 	return db2_max;
+// }
 
 int GetIndex(pcl::search::KdTree<PointType>::Ptr kdtree,PointType ptmp)
 {

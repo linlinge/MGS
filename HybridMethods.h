@@ -32,6 +32,7 @@ class HybridMethods
         Table<Rrd1> rst_density_;
         Table<Rrd1> rst_nid_;
         Table<Rrd1> rst_gradient_;
+        Table<Rrd1> rst_LoOP_;
         pcl::PointCloud<PointType>::Ptr cloud_;
         pcl::search::KdTree<PointType>::Ptr kdtree_;
         StyleEvaluation* pOle_;
@@ -57,19 +58,22 @@ class HybridMethods
 
         /* Function Modules*/
         void FM_Slope(int K, double kIQR,string domain="0");      // Outliers detection based on proximity
-        void FM_Gradient(int K, double kIQR,string domain="0");      // Outliers Removal via Gradient
+        void FM_Gradient(string output_path, int K, double kIQR,string domain="0");      // Outliers Removal via Gradient
         void FM_MEval(int K, double kIQR,string domain="0");      // IRPC: Irregular and Regular Points Classfication based on Minor Eigenvalue
         void FM_NID(int K, double kIQR, string domain="0");
+        void FM_LoOP(string domain="0",int K=40,double thresh=0.8);
         void FM_D4(int K,double P,string domain="0");
         void FM_Density(int K, double alpha,string domain="0");
         void FM_RegionGrowth(double thresh_eclidean, double thresh_tolerance,double thresh_kIQR, string domain="0");
         void FM_MajorityVote(int K,double thresh=0.01,string domain="0");
+        void FM_DensityInsensitive(string output_path, int K);
+        void FM_PolyFitting(string domain="0");
 
         /* Combination Operator */
         vector<int> status_;
 
         /* Status Operations */
         void GetScopeIndices(string str,vector<int>& cIdx);
-        void DemonstrateResult(string path,Table<Rrd1>& tb);
+        void DemonstrateResult_Color(string path,Table<Rrd1>& tb,string mode="linear");
         void DemonstrateResult(string path);
 };

@@ -70,6 +70,7 @@ class Table
 
         /**/
         Table(){}
+        Table(int n){ Resize(n);}
         /**/
         void Clear();
 		void Resize(int n);

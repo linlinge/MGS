@@ -26,6 +26,7 @@ using namespace std;
 */
 double ComputeMeanDistance(const pcl::PointCloud<PointType>::ConstPtr cloud);
 double ComputeMaxDistance(const pcl::PointCloud<PointType>::ConstPtr cloud);
+double ComputeMinDistance(const pcl::PointCloud<PointType>::ConstPtr cloud);
 double ComputeNearestDistance(pcl::search::KdTree<PointType>::Ptr kdtree,int index);
 double ComputeDB2(pcl::search::KdTree<PointType>::Ptr kdtree,int K,int index);
 PointType ComputeCentroid(const pcl::PointCloud<PointType>::ConstPtr cloud);

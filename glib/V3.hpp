@@ -20,15 +20,15 @@ class V3
 public:
 	union {
 		struct {
-			float x, y, z;
+			double x, y, z;
 		};
 
 		struct {
-			float r, g, b;
+			double r, g, b;
 		};
 	};
 	V3() :r(0.0f), g(0.0f), b(0.0f) {};
-	V3(float r1, float g1, float b1)
+	V3(double r1, double g1, double b1)
 	{
 		r = r1;
 		g = g1;
