@@ -498,21 +498,78 @@ void HybridMethods::FM_LoOP(string domain, int K, double thresh)
     }
     accumulator_++;	
 }
-
 void HybridMethods::FM_D4(int K, double P,string domain)
 {
-    pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
-    pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
-    rst_db2_.Clear();
+    // Initialization
+    rst_d4_.Clear();
     if(is_show_progress==1){
         cout<<"D4 start!"<<endl;
     }
     vector<int> scope;
     GetScopeIndices(domain,scope);
-    rst_db2_.Resize(scope.size());
+    rst_d4_.Resize(scope.size());
+    pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
+    pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
+    for(int i=0;i<scope.size();i++)
+        cloud_tmp->points.push_back(cloud_->points[scope[i]]);
+    kdtree_tmp->setInputCloud(cloud_tmp);
+    rst_d4_.Resize(cloud_tmp->points.size());
 
+    /* calculate d4 */
+    #pragma omp parallel for
+    for(int i=0;i<cloud_tmp->points.size();i++){
+        vector<int> idx(K);
+        vector<float> dist(K);        
+        vector<double> ca,cd;        
+        kdtree_tmp->nearestKSearch(cloud_tmp->points[i], K, idx, dist);                
+        DaubechiesWavelet(dist,ca,cd);        
+        rst_d4_.records_[i].id_=i;
+        rst_d4_.records_[i].item1_=VectorMaximum(cd);
+    }
 
+    /* Manage Status List */
+    double IQR=rst_d4_.GetQuantile(0.75)-rst_d4_.GetQuantile(0.25);
+    double thresh=rst_d4_.GetQuantile(0.75)+IQR*P;
+    if(is_show_progress==1){
+        pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
+        pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
+        for(int i=0;i<scope.size();i++){
+            if(rst_d4_.records_[i].item1_>thresh){
+                status_[scope[i]]=-accumulator_;
+                rst1->points.push_back(cloud_->points[scope[i]]);
+            }
+            else{
+                status_[scope[i]]=accumulator_;
+                rst0->points.push_back(cloud_->points[scope[i]]);
+            }        
+        }
+        pcl::io::savePLYFileBinary("Result/rst_"+to_string(accumulator_)+"_regular.ply",*rst0);
+        pcl::io::savePLYFileBinary("Result/rst_"+to_string(accumulator_)+"_outlier.ply",*rst1);
+        cout<<"D4 end!"<<endl;
+    }
+    else{
+        #pragma omp parallel for
+        for(int i=0;i<scope.size();i++){
+            if(rst_d4_.records_[i].item1_>thresh)
+                status_[scope[i]]=-accumulator_;
+            else
+                status_[scope[i]]=accumulator_;                     
+        }
+    }
+    
+    accumulator_++;
+}
 
+void HybridMethods::FM_LNFS(int K, double P,string domain)
+{
+    // Initialization
+    rst_lnfs_.Clear();
+    if(is_show_progress==1){
+        cout<<"LNFS start!"<<endl;
+    }
+    vector<int> scope;
+    GetScopeIndices(domain,scope);
+    rst_lnfs_.Resize(scope.size());
     pcl::search::KdTree<PointType>::Ptr kdtree_tmp(new pcl::search::KdTree<PointType>);
     pcl::PointCloud<PointType>::Ptr cloud_tmp(new pcl::PointCloud<PointType>);
     for(int i=0;i<scope.size();i++)
@@ -559,17 +616,19 @@ void HybridMethods::FM_D4(int K, double P,string domain)
         //     VectorWrite("Result/cA.txt",cA,"append,row");
         //     VectorWrite("Result/cD.txt",cD,"append,row");
         // }
-        rst_db2_.records_[i].id_=i;
-        rst_db2_.records_[i].item1_=VectorMaximum(gap);
+        rst_lnfs_.records_[i].id_=i;
+        rst_lnfs_.records_[i].item1_=VectorMaximum(gap);
     }    
-    // rst_db2_.LocalFilter("average",cloud_tmp,30);
+    // rst_lnfs_.LocalFilter("average",cloud_tmp,30);
 
     /* Manage Status List */
-    double IQR=rst_db2_.GetQuantile(0.75)-rst_db2_.GetQuantile(0.25);
-    double thresh=rst_db2_.GetQuantile(0.75)+IQR*P;
+    double IQR=rst_lnfs_.GetQuantile(0.75)-rst_lnfs_.GetQuantile(0.25);
+    double thresh=rst_lnfs_.GetQuantile(0.75)+IQR*P;
     if(is_show_progress==1){
+        pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
+        pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
         for(int i=0;i<scope.size();i++){
-            if(rst_db2_.records_[i].item1_>thresh){
+            if(rst_lnfs_.records_[i].item1_>thresh){
                 status_[scope[i]]=-accumulator_;
                 rst1->points.push_back(cloud_->points[scope[i]]);
             }
@@ -580,12 +639,12 @@ void HybridMethods::FM_D4(int K, double P,string domain)
         }
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(accumulator_)+"_regular.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(accumulator_)+"_outlier.ply",*rst1);
-        cout<<"D4 end!"<<endl;
+        cout<<"LNFS end!"<<endl;
     }
     else{
         #pragma omp parallel for
         for(int i=0;i<scope.size();i++){
-            if(rst_db2_.records_[i].item1_>thresh)
+            if(rst_lnfs_.records_[i].item1_>thresh)
                 status_[scope[i]]=-accumulator_;
             else
                 status_[scope[i]]=accumulator_;                     

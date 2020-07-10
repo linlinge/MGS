@@ -80,59 +80,61 @@ def Sigularity(input_path,fig_name="1.png"):
     # else:
     #     print("sg:  %.2f    --> 3rd-style" % sg[0,0])
 
-# Style 1
-# Sigularity("/home/llg/dataset/3Dlib/Ignatius.ply")
-# Sigularity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
-# OutlierGrade("/home/llg/dataset/3Dlib/Ignatius.ply")
-# Homogeneity("/home/llg/dataset/3Dlib/Ignatius.ply")
 
-# Style 2
-# Sigularity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
-# OutlierGrade("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
-# Homogeneity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
-
-# Style 3
-# Sigularity("/home/llg/dataset/3Dlib/torch_points.ply")
-# OutlierGrade("/home/llg/dataset/3Dlib/torch_points.ply")
-# Homogeneity("/home/llg/dataset/3Dlib/torch_points.ply")
-
-# Style 4
-# Sigularity("/home/llg/dataset/3Dlib/dog_colmap.ply")
-# OutlierGrade("/home/llg/dataset/3Dlib/dog_colmap.ply")
-# Homogeneity("/home/llg/dataset/3Dlib/dog_colmap.ply")
-
-# OutlierGrade("/home/llg/Human/H_FRM_0145_clipped.ply","1_1.png")
-# OutlierGrade("/home/llg/Human/fused_20200114_01_FRM_0073_1920.ply","1_2.png")
-# OutlierGrade("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply","1_2.png")
-# OutlierGrade("/home/llg/dataset/3Dlib/Ignatius_COLMAP_clipped.ply","1_2.png")
-# OutlierGrade("/home/llg/dataset/3Dlib/cat_colmap.ply","1_2.png")
-# OutlierGrade("/home/llg/dataset/3Dlib/Ignatius.ply","1_2.png")
-# OutlierGrade("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply","1_2.png")
-# Homogeneity("/home/llg/dataset/3Dlib/Ignatius.ply")
-# Homogeneity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
-# Homogeneity("/home/llg/dataset/3Dlib/Barn_COLMAP.ply")
-# Homogeneity("/home/llg/dataset/3Dlib/torch_points.ply")
-# Sigularity("/home/llg/dataset/3Dlib/Meetingroom_COLMAP.ply")
-
-
-# Sigularity("/home/llg/dataset/3Dlib/cat_colmap.ply","3_1.png")
-# Sigularity("/home/llg/dataset/3Dlib/dog_colmap.ply","3_2.png")
-# Sigularity("/home/llg/dataset/3Dlib/Ignatius.ply","3_3.png")
-# Sigularity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply","3_4.png")
 
 
 if __name__ == '__main__':
-    input_path="/home/llg/Experiment/tanks_and_temples/Truck/Truck_COLMAP_clipped.ply"
-    rst_sg=Sigularity(input_path)
-    if rst_sg>4:
-        print("4th-style")
-    else:
-        og=OutlierGrade(input_path,"og.png")
-        if og<0.1:
-            print("1st-style")
-        else:
-            hm=Homogeneity(input_path)
-            if hm<=1:
-                print("2nd-style")
-            else:
-                print("3rd-style")
+    # input_path="/home/llg/Experiment/tanks_and_temples/Truck/Truck_COLMAP_clipped.ply"
+    # rst_sg=Sigularity(input_path)
+    # if rst_sg>4:
+    #     print("4th-style")
+    # else:
+    #     og=OutlierGrade(input_path,"og.png")
+    #     if og<0.1:
+    #         print("1st-style")
+    #     else:
+    #         hm=Homogeneity(input_path)
+    #         if hm<=1:
+    #             print("2nd-style")
+    #         else:
+    #             print("3rd-style")
+
+    # Style 1
+    # Sigularity("/home/llg/dataset/3Dlib/Ignatius.ply")
+    # Sigularity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
+    # OutlierGrade("/home/llg/dataset/3Dlib/Ignatius.ply")
+    # Homogeneity("/home/llg/dataset/3Dlib/Ignatius.ply")
+
+    # Style 2
+    # Sigularity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
+    # OutlierGrade("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
+    # Homogeneity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
+
+    # Style 3
+    # Sigularity("/home/llg/dataset/3Dlib/torch_points.ply")
+    # OutlierGrade("/home/llg/dataset/3Dlib/torch_points.ply")
+    # Homogeneity("/home/llg/dataset/3Dlib/torch_points.ply")
+
+    # Style 4
+    # Sigularity("/home/llg/dataset/3Dlib/dog_colmap.ply")
+    # OutlierGrade("/home/llg/dataset/3Dlib/dog_colmap.ply")
+    # Homogeneity("/home/llg/dataset/3Dlib/dog_colmap.ply")
+
+    # OutlierGrade("/home/llg/Human/H_FRM_0145_clipped.ply","1_1.png")
+    # OutlierGrade("/home/llg/Human/fused_20200114_01_FRM_0073_1920.ply","1_2.png")
+    # OutlierGrade("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply","1_2.png")
+    # OutlierGrade("/home/llg/dataset/3Dlib/Ignatius_COLMAP_clipped.ply","1_2.png")
+    # OutlierGrade("/home/llg/dataset/3Dlib/cat_colmap.ply","1_2.png")
+    # OutlierGrade("/home/llg/dataset/3Dlib/Ignatius.ply","1_2.png")
+    OutlierGrade("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply","1_2.png")
+    # Homogeneity("/home/llg/dataset/3Dlib/Ignatius.ply")
+    # Homogeneity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply")
+    # Homogeneity("/home/llg/dataset/3Dlib/Barn_COLMAP.ply")
+    # Homogeneity("/home/llg/dataset/3Dlib/torch_points.ply")
+    # Sigularity("/home/llg/dataset/3Dlib/Meetingroom_COLMAP.ply")
+
+
+    # Sigularity("/home/llg/dataset/3Dlib/cat_colmap.ply","3_1.png")
+    # Sigularity("/home/llg/dataset/3Dlib/dog_colmap.ply","3_2.png")
+    # Sigularity("/home/llg/dataset/3Dlib/Ignatius.ply","3_3.png")
+    # Sigularity("/home/llg/dataset/3Dlib/Ignatius_COLMAP.ply","3_4.png")

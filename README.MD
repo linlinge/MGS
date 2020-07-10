@@ -1,10 +1,10 @@
-# SGODF: Style-guided outlier detection framework
-This is the source code for the paper "MGS: A Flexible Methods Generation Scheme for Point Cloud Outliers Detection". The file structure description for this project is presented in the following.  
+# SGODF: Style-guided Outlier Detection Framework
+This is the source code for the paper "MGS: A Flexible Methods Generation Scheme for Point Cloud Outliers Detection". The file structure description of this project is presented in the following.  
 ```
-|---- main.cpp : It contains the entry of the main function, and you can choose different patterns in this file.  
-|---- glib : This folder contains some basic functions write by myself.
-|---- OLEModule.h, OLEModule.cpp :
-|---- HybridMethods.h,.cpp : It realized the function of modules' definition and hybrid methods generation.  
+|--- main.cpp: the entry of the main function.
+|--- glib: some basic functions write by myself.
+|--- StyleEvaluation.h,.cpp: code for style evaluation.
+|--- HybridMethods.h,.cpp : realization for different modules.
 ```
 
 # How to use

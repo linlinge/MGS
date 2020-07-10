@@ -28,7 +28,8 @@ class HybridMethods
         /* Variables */
         Table<Rrd1> rst_meval_;
         Table<Rrd1> rst_slope_;
-        Table<Rrd1> rst_db2_;
+        Table<Rrd1> rst_d4_;
+        Table<Rrd1> rst_lnfs_;
         Table<Rrd1> rst_density_;
         Table<Rrd1> rst_nid_;
         Table<Rrd1> rst_gradient_;
@@ -63,6 +64,7 @@ class HybridMethods
         void FM_NID(int K, double kIQR, string domain="0");
         void FM_LoOP(string domain="0",int K=40,double thresh=0.8);
         void FM_D4(int K,double P,string domain="0");
+        void FM_LNFS(int K,double P,string domain="0");
         void FM_Density(int K, double alpha,string domain="0");
         void FM_RegionGrowth(double thresh_eclidean, double thresh_tolerance,double thresh_kIQR, string domain="0");
         void FM_MajorityVote(int K,double thresh=0.01,string domain="0");

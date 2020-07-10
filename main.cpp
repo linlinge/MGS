@@ -101,7 +101,7 @@ int main(int argc,char** argv)
 		// hrd01.FM_D4(70,3); /* S */		
 		// hrd01.FM_D4(200,3);
 		// hrd01.FM_D4(40,3);
-		hrd01.DemonstrateResult_Color("Result/color.ply",hrd01.rst_db2_);
+		hrd01.DemonstrateResult_Color("Result/color.ply",hrd01.rst_d4_);
 	}
 	else if("BSC1_1"==Mtype){
 		// HybridMethods hrd01(cloud,kdtree,&ole);
@@ -122,8 +122,9 @@ int main(int argc,char** argv)
 		hrd01.DemonstrateResult_Color("Result/M1_3",hrd01.rst_meval_);
 	}
 	else if("MGS1"==Mtype){
-		hrd01.FM_D4(100,4);
-		hrd01.FM_LoOP();
+		hrd01.FM_D4(60,10);
+		// hrd01.FM_LNFS(100,4);
+		// hrd01.FM_LoOP();
 		hrd01.DemonstrateResult(output_path);
 	}
 	else if("MGS2"==Mtype){
