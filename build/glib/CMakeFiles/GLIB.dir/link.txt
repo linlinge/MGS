@@ -1,0 +1,2 @@
+/usr/bin/ar qc libGLIB.a  CMakeFiles/GLIB.dir/BasicGeometry.cpp.o CMakeFiles/GLIB.dir/FileExtend.cpp.o CMakeFiles/GLIB.dir/Statistics.cpp.o CMakeFiles/GLIB.dir/PCLExtend.cpp.o CMakeFiles/GLIB.dir/Color.cpp.o CMakeFiles/GLIB.dir/Table.cpp.o CMakeFiles/GLIB.dir/VectorExtend.cpp.o CMakeFiles/GLIB.dir/SignalProcessing.cpp.o CMakeFiles/GLIB.dir/StringExtend.cpp.o
+/usr/bin/ranlib libGLIB.a
