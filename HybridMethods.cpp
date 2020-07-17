@@ -318,15 +318,11 @@ void HybridMethods::FM_MEval(int K, double alpha,string domain)
             status_[scope[i]]=accumulator_;            
         }
     }
-    
-
     accumulator_++;
 }
 
 void HybridMethods::FM_NID(int K, double p, string domain)
-{
-    pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
-    pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
+{    
     if(is_show_progress==1){
         cout<<"NID start!"<<endl;
     }
@@ -361,6 +357,8 @@ void HybridMethods::FM_NID(int K, double p, string domain)
     rst_nid_.Standardize_Zscore();
 
     if(is_show_progress==1){
+        pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
+        pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
         for(int i=0;i<rst_nid_.GetSize();i++){
             double etmp=GaussErrorFunction(rst_nid_.records_[i].item1_);
             if(etmp>p){
@@ -393,7 +391,7 @@ void HybridMethods::FM_NID(int K, double p, string domain)
 void HybridMethods::FM_LoOP(string domain, int K, double thresh)
 {    
     if(is_show_progress==1){
-        cout<<"DB start!"<<endl;
+        cout<<"LoOP start!"<<endl;
     }    
    vector<int> scope;
     if("0"==domain){
@@ -467,8 +465,6 @@ void HybridMethods::FM_LoOP(string domain, int K, double thresh)
 	}
 
 	// #pragma omp parallel for
-
-
     if(is_show_progress==1){
         pcl::PointCloud<PointType>::Ptr rst0(new pcl::PointCloud<PointType>);
         pcl::PointCloud<PointType>::Ptr rst1(new pcl::PointCloud<PointType>);
@@ -484,7 +480,7 @@ void HybridMethods::FM_LoOP(string domain, int K, double thresh)
         }
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(accumulator_)+"_regular.ply",*rst0);
         pcl::io::savePLYFileBinary("Result/rst_"+to_string(accumulator_)+"_irregular.ply",*rst1);
-        cout<<"DB end!"<<endl;
+        cout<<"LoOP end!"<<endl;
     }
     else{
         #pragma omp parallel for
@@ -589,7 +585,7 @@ void HybridMethods::FM_LNFS(int K, double P,string domain)
             buf_nei_dist[i][j]=dist[j];
         }            
     }
-
+    
     // Init ytmp
     #pragma omp parallel for
     for(int i=0;i<scope.size();i++){   
@@ -604,23 +600,10 @@ void HybridMethods::FM_LNFS(int K, double P,string domain)
             double dtmp=pcl::geometry::squaredDistance(cloud_tmp->points[i],cloud_tmp->points[idx_tmp]);
             gap[j]=dtmp;
         }
-
-        // DaubechiesWavelet(gap,cA,cD);
-        // if(i==0){
-        //     VectorWrite("Result/dist.txt",dist,"cover,row");
-        //     VectorWrite("Result/cA.txt",cA,"cover,row");
-        //     VectorWrite("Result/cD.txt",cD,"cover,row");
-        // }
-        // else{
-        //     VectorWrite("Result/dist.txt",dist,"append,row");
-        //     VectorWrite("Result/cA.txt",cA,"append,row");
-        //     VectorWrite("Result/cD.txt",cD,"append,row");
-        // }
         rst_lnfs_.records_[i].id_=i;
         rst_lnfs_.records_[i].item1_=VectorMaximum(gap);
     }    
-    // rst_lnfs_.LocalFilter("average",cloud_tmp,30);
-
+    
     /* Manage Status List */
     double IQR=rst_lnfs_.GetQuantile(0.75)-rst_lnfs_.GetQuantile(0.25);
     double thresh=rst_lnfs_.GetQuantile(0.75)+IQR*P;
@@ -898,9 +881,11 @@ void HybridMethods::DemonstrateResult(string path)
                 rst_irregular_cloud->points.push_back(cloud_->points[i]);
             }
         }
-        // pcl::io::savePLYFileBinary(path+"_regular.ply",*rst_regular_cloud);        
-        // pcl::io::savePLYFileBinary(path+"_irregular.ply",*rst_irregular_cloud);
-        cout<<path<<endl;
+        
+
+        // pcl::io::savePLYFileBinary("Result/rst_regular.ply",*rst_regular_cloud);        
+        // pcl::io::savePLYFileBinary("Result/rst_irregular.ply",*rst_irregular_cloud);
+        // cout<<path<<endl;
         pcl::io::savePLYFileBinary(path,*rst_regular_cloud);
     }
     else

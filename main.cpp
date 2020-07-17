@@ -34,14 +34,6 @@ int main(int argc,char** argv)
 		}
 		else if("-i"==param){
 			input_path=argv[i+1];
-			vector<string> str_tmp;
-			StrSplit(input_path,"/",str_tmp);
-			filename=str_tmp[str_tmp.size()-1];
-			str_tmp.clear();
-			StrSplit(input_path,".",str_tmp);
-			fileNoType=str_tmp[0];
-			cout<<"**********************************"<<endl;
-			cout<<filename<<endl;
 		}
 		else if("-o"==param){
 			output_path=argv[i+1];
@@ -58,6 +50,17 @@ int main(int argc,char** argv)
 			return 0;
 		}
 	}
+	/* is show information*/
+	if(is_show_progress==1){
+		vector<string> str_tmp;
+		StrSplit(input_path,"/",str_tmp);
+		filename=str_tmp[str_tmp.size()-1];
+		str_tmp.clear();
+		StrSplit(input_path,".",str_tmp);
+		fileNoType=str_tmp[0];
+		cout<<"**********************************"<<endl;
+		cout<<filename<<endl;
+	}		
 
 	/* Load Model */
 	pcl::PointCloud<PointType>::Ptr cloud(new pcl::PointCloud<PointType>);	
@@ -122,18 +125,16 @@ int main(int argc,char** argv)
 		hrd01.DemonstrateResult_Color("Result/M1_3",hrd01.rst_meval_);
 	}
 	else if("MGS1"==Mtype){
-		hrd01.FM_D4(60,10);
-		// hrd01.FM_LNFS(100,4);
-		// hrd01.FM_LoOP();
+		// hrd01.FM_D4(40,10);
+		hrd01.FM_LNFS(100,3);
+		// hrd01.FM_LoOP("1");
+		hrd01.FM_NID(100,0.75,"1");
 		hrd01.DemonstrateResult(output_path);
 	}
 	else if("MGS2"==Mtype){
-		// hrd01.FM_Slope(200,3);
-		// hrd01.FM_NID(100,2);
-		
-		hrd01.FM_MEval(80,30);
-		hrd01.FM_LoOP("1");
-		// hrd01.FM_RegionGrowth(0.1,20.0,3.0,"-1");
+		// cout<<"MGS2"<<endl;		
+		hrd01.FM_NID(100,0.75);		
+		hrd01.FM_LoOP("1");		
 		hrd01.DemonstrateResult(output_path);
 	}
 	// else if("MGS2"==Mtype){
@@ -164,12 +165,12 @@ int main(int argc,char** argv)
 	// }	
 	else if("MGS3"==Mtype){
 		// cout<<"MGS3"<<endl;
-		/* Tanks and Temples */
-		// hrd01.store_path_=output_path;
-		// hrd01.FM_Slope(150,5);
-		// hrd01.FM_RegionGrowth(1.5,80.0,200.0,"-1");
-		// hrd01.FM_NID(100,0.8,"1,2");	
-		// hrd01.DemonstrateResult(output_path);
+		/* Tanks and Temples */		
+		hrd01.FM_Slope(150,5.5);
+		hrd01.FM_RegionGrowth(1.5,80.0,200.0,"-1");
+		// hrd01.FM_NID(100,0.99,"1,2");			
+		hrd01.FM_NID(100,0.8,"1,2");	
+		hrd01.DemonstrateResult(output_path);
 
 		/* DTU scan*/
 		// hrd01.store_path_=output_path;
@@ -179,11 +180,10 @@ int main(int argc,char** argv)
 		// hrd01.DemonstrateResult(output_path);
 
 
-		/* DTU furu*/		
-		// hrd01.store_path_=output_path;
+		/* DTU furu*/				
 		// hrd01.FM_Slope(150,3);
 		// hrd01.FM_RegionGrowth(1.5,80.0,200.0,"-1");
-		// hrd01.FM_NID(100,0.8,"1,2");
+		// hrd01.FM_NID(100,0.75,"1,2");
 		// hrd01.DemonstrateResult(output_path);
 
 		/* THU */		
@@ -200,12 +200,12 @@ int main(int argc,char** argv)
 		// hrd01.DemonstrateResult(fileNoType+"_MGS1");
 
 		/* Human (COLMAP)*/		
-		// hrd01.FM_Slope(400,7);
-		hrd01.FM_Slope(400,6);
-		// hrd01.FM_RegionGrowth(2,80.0,4000.0,"-1");		
-		// // hrd01.FM_NID(100,0.9,"1,2");
-		hrd01.FM_LoOP("1");
-		hrd01.DemonstrateResult(output_path);
+		// // hrd01.FM_Slope(400,7);
+		// hrd01.FM_Slope(400,6);
+		// // hrd01.FM_RegionGrowth(2,80.0,4000.0,"-1");		
+		// // // hrd01.FM_NID(100,0.9,"1,2");
+		// hrd01.FM_LoOP("1");
+		// hrd01.DemonstrateResult(output_path);
 	}
 	else if("MGS4"==Mtype){
 		/* THU */		
@@ -213,7 +213,7 @@ int main(int argc,char** argv)
 		hrd01.FM_MajorityVote(4000,0.01,"-1");
 		hrd01.FM_D4(500,30,"1,2");
 		hrd01.FM_RegionGrowth(2.0,80.0,200.0,"-3");
-		hrd01.FM_LoOP("1,2,3,4");
+		hrd01.FM_NID(100,0.7,"1,2,3,4");
 		hrd01.DemonstrateResult(output_path);
 
 		/* Tanks and Temples*/
@@ -243,8 +243,21 @@ int main(int argc,char** argv)
 		// hrd01.FM_LoOP("1,2,3,4");
 		// hrd01.DemonstrateResult(output_path);
 	}
+	else if("H-MGS3"==Mtype){
+		/* Human (COLMAP)*/		
+		// hrd01.FM_Slope(400,7);
+		hrd01.FM_Slope(400,6);
+		// hrd01.FM_RegionGrowth(2,80.0,4000.0,"-1");		
+		// // hrd01.FM_NID(100,0.9,"1,2");
+		hrd01.FM_LoOP("1");
+		hrd01.DemonstrateResult(output_path);
+	}
 	else if("nohair"==Mtype){
 		hrd01.FM_MEval(250,6);
+		hrd01.DemonstrateResult(output_path);
+	}
+	else if("LNFS"==Mtype){
+		hrd01.FM_LNFS(100,3);
 		hrd01.DemonstrateResult(output_path);
 	}
 	return 0;

@@ -143,7 +143,7 @@ void VecUnique(vector<int>& dat)
     v.insert(v.end(),dat.begin(),dat.end());
     sort(v.begin(),v.end());
     v.erase(unique(v.begin(),v.end()),v.end());
-    VecPrint(v);
+    // VecPrint(v);
 }
 
 void VectorWrite(string filename,vector<double>& dat,string mode)
