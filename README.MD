@@ -6,8 +6,8 @@ This is the source code for the paper "SGODF: A Flexible Style-guided Outlier De
 |--- StyleEvaluation.h,.cpp: code for style evaluation.
 |--- HybridMethods.h,.cpp : realization for different modules.
 ```
-# Framework  
-![](./figure/StyleClassification.png)
+# Our Style-guided Framework  
+![](./figure/StyleClassification.png){:height="70%" width="70%"}
 # How to use
 ## Prerequisities   
 * PCL
