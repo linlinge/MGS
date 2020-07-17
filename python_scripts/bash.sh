@@ -35,16 +35,17 @@
 # python StyleEvaluation.py -i /home/llg/Experiment/tanks_and_temples/Meetingroom/Meetingroom_COLMAP_clipped.ply     -M eval2
 # python StyleEvaluation.py -i /home/llg/Experiment/tanks_and_temples/Truck/Truck_COLMAP_clipped.ply                 -M eval2
 
-python StyleEvaluation.py -i /home/llg/Experiment/tanks_and_temples/Ignatius/Ignatius_MGS3_tmp.ply -M eval2
 
 
 # dtu
-# python StyleEvaluation.py -i /home/llg/Experiment/dtu/m001/camp-cropped.ply  -M eval2
-# python StyleEvaluation.py -i /home/llg/Experiment/dtu/m003/camp-cropped.ply  -M eval2
-# python StyleEvaluation.py -i /home/llg/Experiment/dtu/m005/camp-cropped.ply  -M eval2
-# python StyleEvaluation.py -i /home/llg/Experiment/dtu/m006/camp-cropped.ply  -M eval2
-# python StyleEvaluation.py -i /home/llg/Experiment/dtu/m024/camp-cropped.ply  -M eval2
-# python StyleEvaluation.py -i /home/llg/Experiment/dtu/m030/camp-cropped.ply  -M eval2
-# python StyleEvaluation.py -i /home/llg/Experiment/dtu/m034/camp-cropped.ply  -M eval2
-# python StyleEvaluation.py -i /home/llg/Experiment/dtu/m051/camp-cropped.ply  -M eval2
-# python StyleEvaluation.py -i /home/llg/Experiment/dtu/m114/camp-cropped.ply  -M eval2
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m001/camp_cropped.ply  -M eval2
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m003/camp_cropped.ply  -M eval2
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m005/camp_cropped.ply  -M eval2
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m006/camp_cropped.ply  -M eval2
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m030/camp_cropped.ply  -M eval2
+
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m001/camp_cropped_inhm.ply  -M eval2
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m003/camp_cropped_inhm.ply  -M eval2
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m005/camp_cropped_inhm.ply  -M eval2
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m006/camp_cropped_inhm.ply  -M eval2
+python StyleEvaluation.py -i /home/llg/Experiment/dtu/m030/camp_cropped_inhm.ply  -M eval2
