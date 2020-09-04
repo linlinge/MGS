@@ -1,6 +1,0 @@
-/home/llg/workspace_cmake/code-of-MODM/build/CMakeFiles/rebuild_cache.dir
-/home/llg/workspace_cmake/code-of-MODM/build/CMakeFiles/MGS.dir
-/home/llg/workspace_cmake/code-of-MODM/build/CMakeFiles/edit_cache.dir
-/home/llg/workspace_cmake/code-of-MODM/build/glib/CMakeFiles/rebuild_cache.dir
-/home/llg/workspace_cmake/code-of-MODM/build/glib/CMakeFiles/GLIB.dir
-/home/llg/workspace_cmake/code-of-MODM/build/glib/CMakeFiles/edit_cache.dir
